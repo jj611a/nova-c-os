@@ -1,0 +1,6 @@
+Archive: stable
+Component: main
+Origin: NovaC
+Label: Nova-C OS
+Architecture: amd64
+Description: Nova-C OS updates (https://github.com/jj611a/nova-c-os)

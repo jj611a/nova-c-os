@@ -1,0 +1,20 @@
+Origin: NovaC
+Label: Nova-C OS
+Suite: stable
+Codename: trixie
+Date: Tue, 13 Oct 2026 21:05:17 UTC
+Architectures: amd64
+Components: main
+Description: Nova-C OS updates (https://github.com/jj611a/nova-c-os)
+MD5Sum:
+ 8164a09f4d52ac6612d3d13cdced284e 1611 main/binary-amd64/Packages
+ b083291751c11899ed5a19352c604a24 889 main/binary-amd64/Packages.gz
+ adb3a09b97337336119990f0e9e9ef9e 152 main/binary-amd64/Release
+SHA1:
+ 6d7efdaab72ebbbb9988956a98018564323f9120 1611 main/binary-amd64/Packages
+ b9b36493e35d18d670d52e327014d73a47edf5af 889 main/binary-amd64/Packages.gz
+ 24bdd05fe39299e3f726f109a153ef9968bf06b0 152 main/binary-amd64/Release
+SHA256:
+ d72f618e4c8049cf5c0608e05a1921e85b88645c0b673cc8ec81a37dc76384a9 1611 main/binary-amd64/Packages
+ dbd79ec94f4a3dc95e5103fe4fc521b741872ffa4b0d4dd0e9d9c8de92c02cc8 889 main/binary-amd64/Packages.gz
+ 83de39cfc74e3503737b9f8325641fbe2f455053f06c3d0d4ee6ef8a36cbcddf 152 main/binary-amd64/Release
