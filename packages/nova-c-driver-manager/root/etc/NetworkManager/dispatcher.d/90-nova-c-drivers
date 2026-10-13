@@ -1,0 +1,11 @@
+#!/bin/sh
+# Once per boot, as soon as a connection comes up, look for hardware that needs extra drivers.
+# The scan only counts as done when the package lists could be refreshed (really online), so it is
+# retried on the next connection event otherwise.
+case "$2" in
+	up|connectivity-change) ;;
+	*) exit 0 ;;
+esac
+[ -e /run/nova-c/drivers-scan.done ] && exit 0
+systemctl start --no-block nova-c-driver-scan.service
+exit 0

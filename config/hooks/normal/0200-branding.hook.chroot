@@ -1,20 +1,7 @@
 #!/bin/sh
-# Nova-C OS identity. Diverting (without renaming) keeps base-files upgrades from overwriting our os-release.
+# Nova-C OS identity in the image. os-release itself comes from the nova-c-desktop package (so updates can
+# change it); here we only make /etc/os-release the usual symlink and set the console banners.
 set -e
-
-dpkg-divert --package nova-c-branding --add --no-rename --divert /usr/lib/os-release.debian /usr/lib/os-release
-
-cat > /usr/lib/os-release <<'EOT'
-PRETTY_NAME="Nova-C OS 0.1 (based on Debian GNU/Linux 13 trixie)"
-NAME="Nova-C OS"
-VERSION_ID="0.1"
-VERSION="0.1 (trixie base)"
-VERSION_CODENAME=trixie
-ID=nova-c
-ID_LIKE=debian
-DEBIAN_CODENAME=trixie
-LOGO=novac-logo
-EOT
 
 # /etc/os-release is a plain file in this image: make it the usual symlink so there is one source of truth
 rm -f /etc/os-release

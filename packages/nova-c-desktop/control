@@ -1,0 +1,13 @@
+Package: nova-c-desktop
+Version: 0.1.1
+Architecture: all
+Maintainer: Nova-C OS <novacore.iq@gmail.com>
+Section: misc
+Priority: optional
+Depends: nova-c-archive-keyring, nova-c-driver-manager, unattended-upgrades, plasma-workspace, kwin-wayland, sddm, breeze, papirus-icon-theme, fonts-noto-core, fonts-firacode, fastfetch, zram-tools, earlyoom
+Description: Nova-C OS desktop defaults, branding and tuning
+ The Nova-C look (dark slate + cyan Plasma theme, top bar + dock layout, wallpaper,
+ login screen), OS identity (os-release), memory tuning (zram-friendly sysctl,
+ fewer autostarted services, no blur effects, file indexer off) and automatic
+ background updates from Debian security and the Nova-C OS repository.
+ Updating this package updates every installed Nova-C OS system.

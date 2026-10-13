@@ -1,0 +1,6 @@
+// Nova-C OS: install updates automatically in the background (apt-daily timers), from
+//  - Debian security updates (already listed by 50unattended-upgrades)
+//  - the Nova-C OS repository (https://jj611a.github.io/nova-c-os/, Origin "NovaC")
+Unattended-Upgrade::Origins-Pattern {
+	"origin=NovaC,codename=${distro_codename}";
+};

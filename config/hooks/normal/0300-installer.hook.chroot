@@ -1,0 +1,35 @@
+#!/bin/sh
+# Calamares (Debian settings) with Nova-C names: installer window, GRUB/EFI entry and the menu launcher.
+set -e
+. /usr/lib/os-release   # from nova-c-desktop: NAME, VERSION_ID
+
+B=/etc/calamares/branding/debian/branding.desc
+if [ -f "$B" ]; then
+	sed -i -E \
+		-e "s/^( *productName: *).*/\1\"$NAME\"/" \
+		-e 's/^( *shortProductName: *).*/\1"Nova-C"/' \
+		-e "s/^( *version: *).*/\1\"$VERSION_ID\"/" \
+		-e "s/^( *shortVersion: *).*/\1\"$VERSION_ID\"/" \
+		-e "s/^( *versionedName: *).*/\1\"$NAME $VERSION_ID\"/" \
+		-e "s/^( *shortVersionedName: *).*/\1\"Nova-C $VERSION_ID\"/" \
+		-e 's/^( *bootloaderEntryName: *).*/\1"Nova-C"/' \
+		-e 's#^( *productUrl: *).*#\1"https://github.com/jj611a/nova-c-os"#' \
+		-e 's#^( *supportUrl: *).*#\1"https://github.com/jj611a/nova-c-os/issues"#' \
+		-e 's#^( *knownIssuesUrl: *).*#\1"https://github.com/jj611a/nova-c-os/blob/main/docs/REPORT.md"#' \
+		-e 's#^( *releaseNotesUrl: *).*#\1"https://github.com/jj611a/nova-c-os"#' \
+		-e 's#^( *productLogo: *).*#\1"/usr/share/icons/hicolor/128x128/apps/novac-logo.png"#' \
+		-e 's#^( *productIcon: *).*#\1"/usr/share/icons/hicolor/128x128/apps/novac-logo.png"#' \
+		"$B"
+fi
+
+# menu/desktop launcher: "Install Debian" -> "Install Nova-C OS"
+for f in /usr/share/applications/*calamares*.desktop; do
+	[ -f "$f" ] || continue
+	sed -i -E -e 's/^Name(\[[^]]*\])?=.*/Name\1=Install Nova-C OS/' -e 's/^Icon=.*/Icon=novac-logo/' "$f"
+done
+
+# Debian's installer writes a fresh sources.list with only "main non-free-firmware". Nova-C also needs
+# contrib + non-free on installed systems: NVIDIA and Broadcom Wi-Fi drivers, b43 firmware downloader
+# (offered by Hardware Drivers). Our own update source (sources.list.d/nova-c.sources) is kept as is.
+S=/usr/share/calamares/helpers/calamares-sources-final
+[ -f "$S" ] && sed -i 's/ main non-free-firmware$/ main contrib non-free non-free-firmware/' "$S"

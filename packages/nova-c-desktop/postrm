@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+undivert() {   # undivert FILE TARGET
+	dpkg-divert --package nova-c-desktop --remove --rename --divert "$2" "$1" >/dev/null
+}
+
+if [ "$1" = remove ] || [ "$1" = abort-install ] || [ "$1" = disappear ]; then
+	undivert /usr/lib/os-release /usr/lib/os-release.debian
+	for f in org.kde.discover.notifier kaccess xembedsniproxy gmenudbusmenuproxy; do
+		undivert /etc/xdg/autostart/$f.desktop /etc/xdg/autostart/$f.desktop.nova-c-disabled
+	done
+	rm -f /usr/share/color-schemes/NovaC.colors
+	systemctl --global unmask drkonqi-coredump-launcher.socket >/dev/null 2>&1 || true
+fi
+exit 0

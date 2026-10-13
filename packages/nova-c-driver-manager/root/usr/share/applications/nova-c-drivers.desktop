@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Hardware Drivers
+GenericName=Driver Manager
+Comment=Find and install extra drivers for this computer's graphics, Wi-Fi, sound and other hardware
+Exec=nova-c-drivers
+Icon=hwinfo
+Terminal=false
+Categories=System;Settings;HardwareSettings;
+Keywords=driver;drivers;nvidia;broadcom;wifi;firmware;graphics;sound;

@@ -1,0 +1,19 @@
+#!/bin/bash
+# Called by scripts/build-packages.sh with the package staging dir: render the wallpaper and the
+# launcher icon from assets/logo.png and the branding/*.svg.in templates (needs rsvg-convert).
+set -euo pipefail
+STAGE=$1; SRC=$2
+
+# bash builtins only: the base64 logo (~140 KB) is over the 128 KB single-argument limit for sed/awk
+LOGO_B64="$(base64 -w0 "$SRC/assets/logo.png")"
+render() {   # render TEMPLATE WIDTH HEIGHT OUT
+	local t; t="$(< "$SRC/branding/$1")"
+	printf '%s\n' "${t//@LOGO_B64@/$LOGO_B64}" > "$STAGE.svg"
+	mkdir -p "$(dirname "$4")"
+	rsvg-convert -w "$2" -h "$3" "$STAGE.svg" -o "$4"
+	rm -f "$STAGE.svg"
+}
+# desktop wallpaper (also used by the SDDM login screen)
+render wallpaper.svg.in 1920 1080 "$STAGE/usr/share/wallpapers/NovaC/contents/images/1920x1080.png"
+# launcher/menu icon ("novac-logo")
+render icon.svg.in 128 128 "$STAGE/usr/share/icons/hicolor/128x128/apps/novac-logo.png"

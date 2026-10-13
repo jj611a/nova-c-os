@@ -1,0 +1,208 @@
+#!/usr/bin/python3
+# Nova-C driver scan (root): find hardware that needs Debian packages which are not installed yet.
+#   - hardware IDs -> packages: isenkram's mapping (AppStream modalias metadata + isenkram's own list)
+#   - firmware that loaded kernel drivers asked for but could not find -> the package shipping that file
+#   - NVIDIA GPUs -> the proprietary driver nvidia-detect recommends (nouveau already works without it)
+# Writes /var/lib/nova-c/drivers.tsv: device name <TAB> packages <TAB> note. The desktop agent
+# (nova-c-drivers) reads it. With --update, refreshes the package lists first and marks the scan as done
+# for this boot only if that worked (that is, the computer is online).
+# Testing without the hardware: --simulate 'MODALIAS=Device name' adds a pretend device (repeatable), e.g.
+#   driver-scan --update --simulate 'pci:v000014E4d00004311sv000014E4sd00004311bc02sc80i00=Broadcom BCM4311 Wi-Fi (simulated)'
+import glob
+import os
+import re
+import subprocess
+import sys
+
+import apt
+import gi
+import isenkram.lookup as isk
+
+STATE_DIR = '/var/lib/nova-c'
+RESULT = STATE_DIR + '/drivers.tsv'
+DONE = '/run/nova-c/drivers-scan.done'
+FW_CONTENTS = sorted(glob.glob('/usr/share/isenkram/Fw-Contents-amd64-trixie-*') +
+                     glob.glob('/usr/share/isenkram/Fw-Contents-all-trixie-*'))
+# hardware-matched, but tools rather than drivers: not worth a pop-up
+NOT_DRIVERS = {'ethtool'}
+NVIDIA_NOTE = ('optional: the open-source driver already works; '
+               "NVIDIA's own driver adds full 3D speed and CUDA")
+
+
+def run(*cmd):
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True).stdout
+    except OSError:                                                 # tool not installed
+        return ''
+
+
+def read(path):
+    try:
+        with open(path) as f:
+            return f.read().strip()
+    except OSError:
+        return ''
+
+
+def pci_name(slot):
+    fields = re.findall(r'"([^"]*)"', run('lspci', '-mm', '-s', slot))
+    return f'{fields[1]} {fields[2]}' if len(fields) >= 3 else f'PCI device {slot}'
+
+
+def devices():
+    """(modalias, readable name, kernel driver module) for every device isenkram would look at."""
+    for d in sorted(glob.glob('/sys/bus/pci/devices/*')):
+        yield read(d + '/modalias'), pci_name(os.path.basename(d)), \
+            os.path.basename(os.path.realpath(d + '/driver/module')) if os.path.exists(d + '/driver/module') else ''
+    for d in sorted(glob.glob('/sys/bus/usb/devices/*:*')):        # USB interfaces carry the modalias
+        parent = os.path.dirname(os.path.realpath(d))
+        name = ' '.join(x for x in (read(parent + '/manufacturer'), read(parent + '/product')) if x) \
+            or 'USB device %s:%s' % (read(parent + '/idVendor'), read(parent + '/idProduct'))
+        yield read(d + '/modalias'), name, \
+            os.path.basename(os.path.realpath(d + '/driver/module')) if os.path.exists(d + '/driver/module') else ''
+    seen = set()
+    for alias in isk.my_modaliases():                              # DMI, CPU, ACPI, platform, ...
+        if alias.startswith(('pci:', 'usb:')) or alias in seen:
+            continue
+        seen.add(alias)
+        if alias.startswith('dmi:'):
+            name = 'This computer (%s %s)' % (read('/sys/class/dmi/id/sys_vendor'), read('/sys/class/dmi/id/product_name'))
+        elif alias.startswith('cpu:'):
+            name = 'Processor'
+        else:
+            name = 'System device'
+        yield alias, name, ''
+
+
+def appstream_rules():
+    """(modalias pattern, packages) from the AppStream metadata APT downloads (same source as isenkram)."""
+    rules = []
+    try:
+        gi.require_version('AppStream', '1.0')
+        from gi.repository import AppStream
+    except ValueError:
+        return rules
+    pool = AppStream.Pool()
+    pool.load()
+    cpts = pool.get_components()
+    cpts = cpts.as_array() if hasattr(cpts, 'as_array') else cpts
+    for cpt in cpts:
+        prov = cpt.get_provided_for_kind(AppStream.ProvidedKind.MODALIAS)
+        if not prov:
+            continue
+        for item in prov.get_items():
+            pattern = str(item)
+            # isenkram's own exclusion: too broad, would offer broadcom-sta-dkms for every network card
+            if pattern == 'pci:v*d*sv*sd*bc02sc80i*':
+                continue
+            rules.append((pattern, list(cpt.get_pkgnames())))
+    return rules
+
+
+def firmware_index():
+    index = {}
+    for path in FW_CONTENTS:
+        with open(path) as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) == 2:
+                    index[re.sub(r'^(usr/)?lib/firmware/', '', parts[0])] = parts[1].rsplit('/', 1)[-1]
+    return index
+
+
+def firmware_present(name):
+    return any(os.path.exists(base + name + ext)
+               for base in ('/lib/firmware/', '/usr/lib/firmware/') for ext in ('', '.xz', '.zst'))
+
+
+def missing_firmware():
+    """(module, firmware file, device address or '') for firmware the running kernel wanted but lacks."""
+    for line in open('/proc/modules'):
+        mod = line.split()[0]
+        for fw in re.findall(r'^firmware:\s+(\S+)', run('modinfo', mod), re.M):
+            if not firmware_present(fw):
+                yield mod, fw, ''
+    for m in re.finditer(r'^(\S+) (\S+): firmware: failed to load (\S+)', run('journalctl', '-k', '-b', '-o', 'cat'), re.M):
+        if not firmware_present(m.group(3)):
+            yield m.group(1), m.group(3), m.group(2)
+
+
+def nvidia():
+    gpus = [d for d in glob.glob('/sys/bus/pci/devices/*')
+            if read(d + '/vendor') == '0x10de' and read(d + '/class').startswith('0x03')]
+    if not gpus:
+        return
+    m = re.search(r'recommended to install the\s+(\S+)\s+package', run('nvidia-detect'))
+    if m and '/' not in m.group(1):                                 # skip "pkg/backports" advice
+        for d in gpus:
+            yield pci_name(os.path.basename(d)), [m.group(1), 'linux-headers-amd64'], NVIDIA_NOTE
+
+
+def main():
+    if '--update' in sys.argv:
+        r = subprocess.run(['apt-get', '-q', '-o', 'DPkg::Lock::Timeout=300', 'update'],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+        if r.returncode != 0 or re.search(r'^(E:|W: Failed to fetch)', r.stderr, re.M):
+            print('package lists could not be refreshed (offline?); will retry when online', file=sys.stderr)
+            sys.exit(1)
+
+    cache = apt.Cache()
+    virt = run('systemd-detect-virt').strip()
+    found = {}                                                      # device name -> [packages, note]
+
+    def offer(name, pkgs, note=''):
+        for p in pkgs:
+            if p in NOT_DRIVERS or p not in cache or cache[p].candidate is None or cache[p].is_installed:
+                continue
+            if virt == 'oracle' and p.startswith('open-vm-tools'):   # VirtualBox's VMware-compatible GPU
+                continue
+            entry = found.setdefault(name, [[], note])
+            if p not in entry[0]:
+                entry[0].append(p)
+            entry[1] = entry[1] or note
+
+    simulated = [a.split('=', 1) + [''] for i, a in enumerate(sys.argv)
+                 if i > 0 and sys.argv[i - 1] == '--simulate']
+    rules = appstream_rules()
+    module_devices = {}
+    for alias, name, module in list(devices()) + [(s[0], s[1] or s[0], '') for s in simulated]:
+        if module:
+            module_devices.setdefault(module, name)
+        if not alias:
+            continue
+        pkgs = isk.pkgs_handling_extra_modaliases([alias])
+        pkgs += [p for pattern, ps in rules if isk.modalias_match(alias, 'x(' + pattern + ')') for p in ps]
+        offer(name, pkgs)
+
+    index = firmware_index()
+    for mod, fw, addr in missing_firmware():
+        pkg = index.get(fw)
+        if pkg:
+            name = pci_name(addr) if re.match(r'^[0-9a-f]{4}:', addr) else module_devices.get(mod, f'Device using the {mod} driver')
+            offer(name, [pkg], 'firmware')
+
+    for name, pkgs, note in nvidia():
+        offer(name, pkgs, note)
+
+    # Broadcom chips that both b43 (open driver + downloaded firmware) and wl support: offer only b43,
+    # installing both makes them fight over the card
+    for pkgs, _ in found.values():
+        if 'broadcom-sta-dkms' in pkgs and {'firmware-b43-installer', 'firmware-b43legacy-installer'} & set(pkgs):
+            pkgs.remove('broadcom-sta-dkms')
+
+    os.makedirs(STATE_DIR, exist_ok=True)
+    with open(RESULT + '.new', 'w') as f:
+        for name, (pkgs, note) in sorted(found.items()):
+            f.write('%s\t%s\t%s\n' % (name.replace('\t', ' '), ' '.join(pkgs), note))
+    os.replace(RESULT + '.new', RESULT)
+    os.chmod(RESULT, 0o644)
+
+    if '--update' in sys.argv:
+        os.makedirs(os.path.dirname(DONE), exist_ok=True)
+        open(DONE, 'w').close()
+    for name, (pkgs, note) in sorted(found.items()):
+        print('%s: %s%s' % (name, ' '.join(pkgs), f' ({note})' if note else ''))
+
+
+if __name__ == '__main__':
+    main()

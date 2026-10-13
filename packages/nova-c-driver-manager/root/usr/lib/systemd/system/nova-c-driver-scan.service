@@ -1,0 +1,11 @@
+[Unit]
+Description=Nova-C: find hardware that needs extra drivers
+Documentation=https://github.com/jj611a/nova-c-os
+# started by /etc/NetworkManager/dispatcher.d/90-nova-c-drivers once the computer is online
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/nova-c/driver-scan --update
+Nice=10
+IOSchedulingClass=idle

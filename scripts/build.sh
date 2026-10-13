@@ -12,6 +12,7 @@ OUT="$SRC/output"
 [ "$(id -u)" -eq 0 ] || { echo "run as root (sudo)"; exit 1; }
 
 # dev builds log the boot to the serial port; release: DEBUG_BOOT=0 scripts/build.sh
+# WITH_CRAFT=1 adds the Craft app suite and writes output/novac-craft.iso instead of output/novac.iso
 export DEBUG_BOOT="${DEBUG_BOOT:-1}"
 
 mkdir -p "$WORK" "$OUT"
@@ -31,21 +32,29 @@ if [ "${RESUME:-0}" != 1 ]; then
 	TEMPLATE="$(< "$SRC/branding/splash.svg.in")"
 	printf '%s\n' "${TEMPLATE//@LOGO_B64@/$LOGO_B64}" > "$WORK/config/bootloaders/splash.svg"
 
-	# desktop wallpaper (also used by the SDDM login screen)
-	WALL_DIR="$WORK/config/includes.chroot/usr/share/wallpapers/NovaC/contents/images"
-	mkdir -p "$WALL_DIR"
-	TEMPLATE="$(< "$SRC/branding/wallpaper.svg.in")"
-	printf '%s\n' "${TEMPLATE//@LOGO_B64@/$LOGO_B64}" > "$WORK/wallpaper.svg"
-	rsvg-convert -w 1920 -h 1080 "$WORK/wallpaper.svg" -o "$WALL_DIR/1920x1080.png"
-	chmod 644 "$WALL_DIR/1920x1080.png"
+	# Nova-C's own packages: look, tuning, update source (the same .debs publish-updates.sh publishes)
+	bash "$SRC/scripts/build-packages.sh"
+	mkdir -p "$WORK/config/packages.chroot"
+	# a version that is already published must be byte-identical (builds are reproducible): otherwise apt
+	# sees two different packages with one version, and installed systems would never get the change
+	PAGES="${PAGES:-$SRC/../nova-c-os-pages}"
+	for deb in "$SRC"/packages/dist/*.deb; do
+		f=$(basename "$deb"); pub=$(find "$PAGES/pool" -name "$f" 2>/dev/null | head -n1)
+		if [ -n "$pub" ] && ! cmp -s "$deb" "$pub"; then
+			echo "$f is already published with different content: bump Version in packages/${f%%_*}/control"; exit 1
+		fi
+		[ -n "$pub" ] || echo "note: $f is not published yet (scripts/publish-updates.ps1)"
+		cp "$deb" "$WORK/config/packages.chroot/"
+	done
 
-	# launcher/menu icon ("novac-logo")
-	ICON_DIR="$WORK/config/includes.chroot/usr/share/icons/hicolor/128x128/apps"
-	mkdir -p "$ICON_DIR"
-	TEMPLATE="$(< "$SRC/branding/icon.svg.in")"
-	printf '%s\n' "${TEMPLATE//@LOGO_B64@/$LOGO_B64}" > "$WORK/icon.svg"
-	rsvg-convert -w 128 -h 128 "$WORK/icon.svg" -o "$ICON_DIR/novac-logo.png"
-	chmod 644 "$ICON_DIR/novac-logo.png"
+	# optional ArtCraft "Craft" app suite (about +0.5 GB): WITH_CRAFT=1, after scripts/fetch-craft-suite.sh
+	if [ "${WITH_CRAFT:-0}" = 1 ]; then
+		( cd "$SRC/extras/craft" && sha256sum -c --quiet "$SRC/scripts/craft-suite.sha256" ) \
+			|| { echo "Craft debs missing or not matching the pins: run scripts/fetch-craft-suite.sh"; exit 1; }
+		cp "$SRC"/extras/craft/*.deb "$WORK/config/packages.chroot/"
+		# Recommends of the Craft debs needed at runtime (software Vulkan where the GPU has none)
+		printf 'mesa-vulkan-drivers\nlibvulkan1\n' > "$WORK/config/package-lists/craft.list.chroot"
+	fi
 fi
 
 cd "$WORK"
@@ -55,9 +64,13 @@ if [ "${RESUME:-0}" != 1 ]; then
 	lb clean 2>/dev/null || true   # keeps cache/ (downloads); config is regenerated from auto/config
 	lb config
 fi
+rm -f "$WORK"/*.iso
 lb build 2>&1 | tee -a "$WORK/build.log"
 
-ISO="$(ls -1 "$WORK"/*.iso | head -n1)"
-cp -v "$ISO" "$OUT/novac.iso"
+# lb can exit 0 after a failed stage (e.g. "E: An unexpected failure occurred"): only a fresh ISO counts
+NAME=novac; [ "${WITH_CRAFT:-0}" = 1 ] && NAME=novac-craft
+ISO="$(ls -1 "$WORK"/*.iso 2>/dev/null | head -n1)"
+[ -n "$ISO" ] || { echo "BUILD FAILED: no ISO produced, see $WORK/build.log"; exit 1; }
+cp -v "$ISO" "$OUT/$NAME.iso"
 cp -v "$WORK/build.log" "$OUT/build.log"
-( cd "$OUT" && sha256sum novac.iso | tee novac.iso.sha256 )
+( cd "$OUT" && sha256sum $NAME.iso | tee $NAME.iso.sha256 )

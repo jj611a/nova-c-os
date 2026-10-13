@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = configure ]; then
+	# Nova-C colour scheme = Breeze Dark with the logo's cyan as accent and a deep slate base
+	S=/usr/share/color-schemes
+	if [ -f $S/BreezeDark.colors ]; then
+		sed -e 's/^Name=.*/Name=Nova-C/' \
+		    -e 's/61,174,233/76,225,240/g' \
+		    -e 's/35,38,41/14,20,31/g' \
+		    -e 's/27,30,32/10,15,24/g' \
+		    -e 's/49,54,59/22,31,46/g' \
+		    -e 's/42,46,50/17,25,38/g' \
+		    $S/BreezeDark.colors > $S/NovaC.colors
+	fi
+
+	# KDE's crash-report socket loops in the login screen's system-user session; keep it off
+	systemctl --global mask drkonqi-coredump-launcher.socket >/dev/null 2>&1 || true
+
+	# sensor quirks (hwdb) and memory sysctls take effect without a reboot where possible
+	command -v systemd-hwdb >/dev/null && systemd-hwdb update || true
+	[ -d /run/systemd/system ] && sysctl -q -p /etc/sysctl.d/90-nova-c.conf || true
+	command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor || true
+fi
+exit 0

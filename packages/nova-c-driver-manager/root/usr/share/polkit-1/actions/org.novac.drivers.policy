@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>Nova-C OS</vendor>
+  <vendor_url>https://github.com/jj611a/nova-c-os</vendor_url>
+
+  <!-- refresh package lists and look at the hardware: harmless, no password for the local user -->
+  <action id="org.novac.drivers.scan">
+    <description>Look for hardware that needs extra drivers</description>
+    <message>Checking which drivers this computer needs</message>
+    <icon_name>hwinfo</icon_name>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nova-c/driver-scan</annotate>
+  </action>
+
+  <!-- installing software as root: administrator password, remembered for a few minutes -->
+  <action id="org.novac.drivers.install">
+    <description>Install hardware drivers</description>
+    <message>Authentication is required to install hardware drivers</message>
+    <icon_name>hwinfo</icon_name>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nova-c/driver-install</annotate>
+  </action>
+</policyconfig>

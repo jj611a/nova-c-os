@@ -1,0 +1,12 @@
+Package: nova-c-driver-manager
+Version: 0.1.0
+Architecture: all
+Maintainer: Nova-C OS <novacore.iq@gmail.com>
+Section: admin
+Priority: optional
+Depends: python3, python3-apt, isenkram-cli, nvidia-detect, pciutils, usbutils, kmod, kdialog, konsole, pkexec, polkitd, dbus-bin, network-manager, mokutil
+Description: Nova-C OS hardware driver finder
+ Recognises devices that need extra drivers (NVIDIA graphics, Broadcom and old
+ Intel Wi-Fi, missing firmware, and anything Debian maps to a hardware ID), and
+ once the computer is online asks the user whether to download and install them.
+ Also available from the menu as "Hardware Drivers".

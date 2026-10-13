@@ -46,9 +46,44 @@ fastfetch
 # ---- touch / laptop hardware ----
 maliit-keyboard
 iio-sensor-proxy
+thermald
+pciutils
+mokutil
+
+# ---- Wi-Fi (network-manager only Recommends these; without wpasupplicant WPA/WPA2 Wi-Fi cannot connect) ----
+wpasupplicant
+wireless-regdb
+iw
+dnsmasq-base
+
+# ---- sound: UCM profiles are required by SOF/modern Intel+AMD laptop audio; Bluetooth headsets ----
+alsa-ucm-conf
+alsa-topology-conf
+alsa-utils
+libspa-0.2-bluetooth
+
+# ---- graphics: Vulkan (Intel/AMD/software) and hardware video decoding (Intel old+new, AMD, NVIDIA nouveau) ----
+mesa-vulkan-drivers
+mesa-va-drivers
+intel-media-va-driver
+i965-va-driver
 
 # ---- live system (live-config only creates the live user if user-setup is installed) ----
 user-setup
+
+# ---- installer: Calamares copies the live system to disk; UEFI boot (laptops), Secure Boot via shim ----
+calamares
+calamares-settings-debian
+grub-efi-amd64
+grub-efi-amd64-signed
+shim-signed
+efibootmgr
+os-prober
+
+# ---- updates: Nova-C packages + Debian security fixes install automatically (see nova-c-desktop) ----
+unattended-upgrades
+# HTTPS trust store for apt (the update repository is https; Firefox has its own, apt does not)
+ca-certificates
 
 # ---- things the desktop needs at runtime that are only "Recommends" ----
 kbd
@@ -77,6 +112,8 @@ locales
 # ---- firmware for broad laptop hardware support (non-free-firmware) ----
 # Explicit list instead of the firmware-linux metapackage: that one pulls in firmware-b43-installer,
 # which downloads proprietary firmware from GitHub during the image build (fragile, fails offline).
+# Drivers that cannot ship in the image (NVIDIA's own driver, Broadcom wl, b43 firmware, old Intel ipw2x00)
+# are offered after first boot by Hardware Drivers (packages/nova-c-driver-manager).
 firmware-linux-free
 firmware-amd-graphics
 firmware-intel-graphics
@@ -93,5 +130,10 @@ firmware-libertas
 firmware-ti-connectivity
 firmware-ath9k-htc
 firmware-sof-signed
+firmware-cirrus
+firmware-zd1211
+firmware-carl9170
+firmware-bnx2
+bluez-firmware
 intel-microcode
 amd64-microcode

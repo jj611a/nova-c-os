@@ -1,0 +1,117 @@
+#!/bin/bash
+# Nova-C hardware drivers: shows recognised devices that need extra drivers and installs them on request.
+#   nova-c-drivers           from the menu: rescan now, then show everything that can be installed
+#   nova-c-drivers --notify  at login: wait until the computer is online and the scan has run, then ask
+#                            once about new findings ("Don't ask again" remembers the choice per package)
+LIST=/var/lib/nova-c/drivers.tsv
+DONE=/run/nova-c/drivers-scan.done
+LIBEXEC=/usr/libexec/nova-c
+IGNORED="${XDG_CONFIG_HOME:-$HOME/.config}/nova-c/drivers-ignored"
+TITLE="Hardware Drivers"
+mkdir -p "$(dirname "$IGNORED")" && touch "$IGNORED"
+
+installed() { [ "$(dpkg-query -W -f='${db:Status-Status}' "$1" 2>/dev/null)" = installed ]; }
+
+# rows (device <TAB> packages <TAB> note) that still have something to install; $1=notify also skips ignored
+pending() {
+	[ -r "$LIST" ] || return 0
+	while IFS=$'\t' read -r dev pkgs note; do
+		keep=""
+		for p in $pkgs; do
+			installed "$p" && continue
+			[ "$1" = notify ] && grep -qxF "$p" "$IGNORED" && continue
+			keep="$keep $p"
+		done
+		[ -n "$keep" ] && printf '%s\t%s\t%s\n' "$dev" "${keep# }" "$note"
+	done < "$LIST"
+}
+
+busy() {   # busy TEXT -> prints the dialog's D-Bus reference
+	kdialog --title "$TITLE" --icon hwinfo --progressbar "$1" 0
+}
+unbusy() { [ -n "$1" ] && dbus-send --session --dest="${1% *}" "${1#* }" org.kde.kdialog.ProgressDialog.close 2>/dev/null; }
+
+uses_dkms() { case " $* " in *-dkms\ *|*nvidia*|*broadcom-sta*) return 0 ;; esac; return 1; }
+secure_boot_on() { mokutil --sb-state 2>/dev/null | grep -qi 'SecureBoot enabled'; }
+
+install_rows() {   # install_rows ROWS: let the user pick, then download and install
+	local rows="$1" args=() i=0 dev pkgs note
+	while IFS=$'\t' read -r dev pkgs note; do
+		i=$((i + 1))
+		args+=("$i" "$dev  —  $pkgs${note:+  ($note)}" on)
+	done <<<"$rows"
+	local picked
+	picked=$(kdialog --title "$TITLE" --icon hwinfo --separate-output \
+		--checklist "Choose the drivers to download and install:" "${args[@]}") || return 1
+	[ -n "$picked" ] || return 1
+	local selected=()
+	while read -r n; do
+		selected+=($(sed -n "${n}p" <<<"$rows" | cut -f2))
+	done <<<"$picked"
+	uses_dkms "${selected[@]}" && selected+=(linux-headers-amd64)
+
+	if uses_dkms "${selected[@]}" && secure_boot_on; then
+		kdialog --title "$TITLE" --warningcontinuecancel \
+"Secure Boot is on. These drivers are built on this computer and have to be signed with a key that
+Secure Boot trusts. After installing, a terminal asks you to choose a one-time password. On the next
+restart a blue \"MOK management\" screen appears: choose \"Enroll MOK\", then \"Continue\", and type that
+password. Without this step the driver will not load (you can also turn Secure Boot off instead)." || return 1
+	fi
+
+	local ref rc
+	ref=$(busy "Downloading and installing: ${selected[*]}
+This can take a few minutes.")
+	pkexec "$LIBEXEC/driver-install" "${selected[@]}"
+	rc=$?
+	unbusy "$ref"
+	case $rc in
+	0) ;;
+	126|127) kdialog --title "$TITLE" --sorry "Nothing was installed (the password prompt was cancelled)."; return 1 ;;
+	*) kdialog --title "$TITLE" --error "Installing the drivers failed.
+Details are in /var/log/nova-c/driver-install.log"; return 1 ;;
+	esac
+
+	if uses_dkms "${selected[@]}" && secure_boot_on && [ -f /var/lib/dkms/mok.pub ] \
+		&& ! mokutil --test-key /var/lib/dkms/mok.pub 2>/dev/null | grep -q 'already enrolled'; then
+		konsole --hold -e sh -c 'echo "Choose a one-time password for enrolling the driver signing key:"; pkexec mokutil --import /var/lib/dkms/mok.pub && echo && echo "Done. Restart, choose \"Enroll MOK\" and enter this password."'
+	fi
+	kdialog --title "$TITLE" --yes-label "Restart now" --no-label "Later" \
+		--yesno "The drivers are installed. Restart the computer to start using them." && systemctl reboot
+	return 0
+}
+
+if [ "${1:-}" = --notify ]; then
+	# the system scan runs as soon as the computer is online (NetworkManager dispatcher)
+	until [ -e "$DONE" ]; do sleep 20; done
+	rows=$(pending notify)
+	[ -n "$rows" ] || exit 0
+	list=$(awk -F'\t' '{ printf "• %s  (%s)\n", $1, $2 }' <<<"$rows")
+	kdialog --title "$TITLE" --icon hwinfo \
+		--yes-label "Download and install" --no-label "Not now" --cancel-label "Don't ask again" \
+		--yesnocancel "Nova-C recognised hardware that works better with extra drivers:
+
+$list
+
+Download and install them now?"
+	case $? in
+	0) install_rows "$rows" ;;
+	2) cut -f2 <<<"$rows" | tr ' ' '\n' >> "$IGNORED" ;;
+	esac
+	exit 0
+fi
+
+# opened from the menu: fresh scan (needs the internet to see what can be downloaded)
+ref=$(busy "Looking for hardware that needs extra drivers…")
+pkexec "$LIBEXEC/driver-scan" --update >/dev/null 2>&1
+rc=$?
+unbusy "$ref"
+if [ $rc -ne 0 ] && [ ! -r "$LIST" ]; then
+	kdialog --title "$TITLE" --sorry "Could not check for drivers. Connect to the internet and try again."
+	exit 1
+fi
+rows=$(pending all)
+if [ -z "$rows" ]; then
+	kdialog --title "$TITLE" --msgbox "All recognised hardware is supported. No extra drivers are needed."
+	exit 0
+fi
+install_rows "$rows"

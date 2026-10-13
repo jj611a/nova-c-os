@@ -1,0 +1,4 @@
+// Nova-C OS: check for and install updates once a day
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::AutocleanInterval "7";

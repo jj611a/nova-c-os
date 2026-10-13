@@ -1,0 +1,8 @@
+[Wayland]
+InputMethod=/usr/share/applications/com.github.maliit.keyboard.desktop
+
+[Plugins]
+# lighter compositing: no blur/translucency effects behind panels and menus (saves RAM and GPU/CPU,
+# most noticeable on software rendering and older laptops)
+blurEnabled=false
+contrastEnabled=false

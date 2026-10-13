@@ -1,0 +1,11 @@
+PRETTY_NAME="Nova-C OS 0.1.1 (based on Debian GNU/Linux 13 trixie)"
+NAME="Nova-C OS"
+VERSION_ID="0.1.1"
+VERSION="0.1.1 (trixie base)"
+VERSION_CODENAME=trixie
+ID=nova-c
+ID_LIKE=debian
+DEBIAN_CODENAME=trixie
+HOME_URL="https://github.com/jj611a/nova-c-os"
+BUG_REPORT_URL="https://github.com/jj611a/nova-c-os/issues"
+LOGO=novac-logo

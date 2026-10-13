@@ -1,0 +1,25 @@
+#!/bin/bash
+# Install driver packages the Nova-C driver scan offered (run as root through pkexec by nova-c-drivers).
+# Only packages listed in the scan result (plus kernel headers, which DKMS drivers build against) are accepted.
+set -uo pipefail
+
+LIST=/var/lib/nova-c/drivers.tsv
+LOG=/var/log/nova-c/driver-install.log
+mkdir -p "$(dirname "$LOG")"
+
+[ $# -gt 0 ] || { echo "usage: driver-install PACKAGE..." >&2; exit 2; }
+allowed="$( { cut -f2 "$LIST" 2>/dev/null | tr ' ' '\n'; echo linux-headers-amd64; } )"
+for p in "$@"; do
+	grep -qxF -- "$p" <<<"$allowed" || { echo "not offered by the driver scan: $p" >&2; exit 2; }
+done
+
+# the user chose to install these, which includes accepting the vendor licence where Debian asks for it
+echo 'firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true' | debconf-set-selections
+export DEBIAN_FRONTEND=noninteractive
+{
+	echo "=== $(date '+%F %T') installing: $*"
+	apt-get -q -o DPkg::Lock::Timeout=300 -o APT::Install-Recommends=true install -y "$@"
+	rc=$?
+	echo "=== exit $rc"
+	exit $rc
+} >>"$LOG" 2>&1

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Hardware Drivers (check at login)
+Comment=Asks to install extra drivers for recognised hardware once the computer is online
+Exec=nova-c-drivers --notify
+Icon=hwinfo
+NoDisplay=true
+X-KDE-autostart-phase=2

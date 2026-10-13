@@ -1,0 +1,19 @@
+#!/bin/sh
+# Divert (move aside) files that other packages own and Nova-C replaces or switches off.
+set -e
+
+divert() {   # divert FILE TARGET
+	dpkg-divert --package nova-c-desktop --add --rename --divert "$2" "$1" >/dev/null
+}
+
+if [ "$1" = install ] || [ "$1" = upgrade ]; then
+	# our os-release replaces base-files' copy (base-files upgrades keep updating the .debian one)
+	divert /usr/lib/os-release /usr/lib/os-release.debian
+	# autostarted background programs Nova-C does not start by default (idle RAM):
+	#   Discover's tray update notifier (~150 MB; updates install automatically instead),
+	#   the accessibility daemon, and the X11 tray/menu proxies (which also start Xwayland)
+	for f in org.kde.discover.notifier kaccess xembedsniproxy gmenudbusmenuproxy; do
+		divert /etc/xdg/autostart/$f.desktop /etc/xdg/autostart/$f.desktop.nova-c-disabled
+	done
+fi
+exit 0
