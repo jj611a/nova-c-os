@@ -1,14 +1,16 @@
 # Scripted UI smoke test of output\novac.iso in a laptop-style VirtualBox VM (mouse + keyboard, no touch).
 # Drives the desktop with keyboard shortcuts (VirtualBox cannot inject mouse clicks) and saves a screenshot per step.
-# Usage: powershell -File scripts\run-ui-tests.ps1 [-OutDir docs\screenshots]
+# Runs in its own headless VM (default NovaC-auto), so a person using the NovaC-test window cannot interfere.
+# Usage: powershell -File scripts\run-ui-tests.ps1 [-OutDir docs\screenshots] [-Name NovaC-auto]
 param(
     [string]$OutDir = (Join-Path $PSScriptRoot "..\docs\screenshots"),
+    [string]$Name = "NovaC-auto",
     [switch]$LoginOnly   # skip the desktop run and only redo the login-screen part (the VM must already exist)
 )
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "vbox-type.ps1")
 $vbm = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
-$vm  = "NovaC-test"
+$vm  = $Name
 New-Item -ItemType Directory -Force $OutDir | Out-Null
 $OutDir = (Resolve-Path $OutDir).Path
 
@@ -21,7 +23,7 @@ $META = "e0 5b"; $METAUP = "e0 db"
 if (-not $LoginOnly) {
 # VBoxManage prints progress ("0%...10%...") on stderr, which would be fatal under -ErrorAction Stop
 $ErrorActionPreference = "Continue"
-$null = & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "test-vbox.ps1") 2>&1
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "test-vbox.ps1") -Name $vm -Headless 2>&1
 $ErrorActionPreference = "Stop"
 if (-not (& $vbm list runningvms | Select-String "`"$vm`"")) { throw "VM $vm did not start" }
 Wait 11;  Shot "01-boot-menu"

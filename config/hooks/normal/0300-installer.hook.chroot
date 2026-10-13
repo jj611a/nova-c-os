@@ -22,6 +22,12 @@ if [ -f "$B" ]; then
 		"$B"
 fi
 
+# Users page: show a "Require strong passwords" checkbox (on by default) so a simple password only warns
+U=/etc/calamares/modules/users.conf
+if [ -f "$U" ] && ! grep -q '^allowWeakPasswords:' "$U"; then
+	printf '\nallowWeakPasswords: true\nallowWeakPasswordsDefault: false\n' >> "$U"
+fi
+
 # menu/desktop launcher: "Install Debian" -> "Install Nova-C OS"
 for f in /usr/share/applications/*calamares*.desktop; do
 	[ -f "$f" ] || continue

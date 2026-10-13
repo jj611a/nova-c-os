@@ -1,19 +1,21 @@
 # Create (or recreate) a VirtualBox VM and boot the Nova-C OS ISO.
-# Usage: powershell -File scripts\test-vbox.ps1 [-Iso output\novac.iso] [-Name NovaC-test] [-Accel3d] [-Touch]
+# Usage: powershell -File scripts\test-vbox.ps1 [-Iso output\novac.iso] [-Name NovaC-test] [-Accel3d] [-Touch] [-Headless]
 # Default is a laptop-like VM (plain mouse + keyboard); -Touch presents a USB multi-touch screen instead.
-# Boot log goes to output\serial.log (dev builds, DEBUG_BOOT=1).
+# -Headless runs without a window (automated tests: nobody's mouse can interfere).
+# Boot log goes to output\serial-<Name>.log (dev builds, DEBUG_BOOT=1).
 param(
     [string]$Iso  = (Join-Path $PSScriptRoot "..\output\novac.iso"),
     [string]$Name = "NovaC-test",
     [int]$MemMB   = 2048,
     [int]$Cpus    = 2,
     [switch]$Accel3d,  # test the GPU (GLES) path; default off exercises the software-renderer fallback
-    [switch]$Touch
+    [switch]$Touch,
+    [switch]$Headless
 )
 $ErrorActionPreference = "Stop"
 $vbm = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
 $Iso = (Resolve-Path $Iso).Path
-$serial = Join-Path (Split-Path $Iso) "serial.log"
+$serial = Join-Path (Split-Path $Iso) "serial-$Name.log"
 $vmDir = "$env:USERPROFILE\VirtualBox VMs\$Name"
 
 if (& $vbm list vms | Select-String "`"$Name`"") {
@@ -34,4 +36,4 @@ $mouse = if ($Touch) { "usbmultitouch" } else { "usbtablet" }
 & $vbm createmedium disk --filename "$vmDir\disk.vdi" --size 16384
 & $vbm storageattach $Name --storagectl SATA --port 0 --device 0 --type hdd --medium "$vmDir\disk.vdi"
 & $vbm storageattach $Name --storagectl SATA --port 1 --device 0 --type dvddrive --medium $Iso
-& $vbm startvm $Name --type gui
+& $vbm startvm $Name --type $(if ($Headless) { "headless" } else { "gui" })

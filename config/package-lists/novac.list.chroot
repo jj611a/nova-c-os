@@ -79,6 +79,9 @@ grub-efi-amd64-signed
 shim-signed
 efibootmgr
 os-prober
+# password dictionary for the installer's password check (a dropped Recommends of libcrack2: without it every
+# password fails with "error loading dictionary")
+cracklib-runtime
 
 # ---- updates: Nova-C packages + Debian security fixes install automatically (see nova-c-desktop) ----
 unattended-upgrades

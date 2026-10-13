@@ -1,20 +1,21 @@
 # Boot an ISO in the laptop-style VM and record idle memory use: totals, RAM-backed live overlay, zram, and the
-# proportional (PSS) memory of every program, summed by name. Results go to the serial port -> output\serial.log
-# and are printed here. Needs a dev build (DEBUG_BOOT=1, serial console on).
-# Usage: powershell -File scripts\measure-ram.ps1 [-Iso output\novac.iso] [-IdleSeconds 120]
+# proportional (PSS) memory of every program, summed by name. Results go to the serial port ->
+# output\serial-<Name>.log and are printed here. Needs a dev build (DEBUG_BOOT=1). Uses its own headless VM.
+# Usage: powershell -File scripts\measure-ram.ps1 [-Iso output\novac.iso] [-IdleSeconds 120] [-Name NovaC-auto]
 param(
     [string]$Iso = (Join-Path $PSScriptRoot "..\output\novac.iso"),
-    [int]$IdleSeconds = 120
+    [int]$IdleSeconds = 120,
+    [string]$Name = "NovaC-auto"
 )
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "vbox-type.ps1")
 $vbm = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
-$vm = "NovaC-test"
-$serial = Join-Path (Split-Path (Resolve-Path $Iso).Path) "serial.log"
+$vm = $Name
+$serial = Join-Path (Split-Path (Resolve-Path $Iso).Path) "serial-$Name.log"
 function Keys($codes) { & $vbm controlvm $vm keyboardputscancode @($codes -split ' ') | Out-Null }
 
 $ErrorActionPreference = "Continue"   # VBoxManage progress goes to stderr
-$null = & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "test-vbox.ps1") -Iso $Iso 2>&1
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "test-vbox.ps1") -Iso $Iso -Name $vm -Headless 2>&1
 $ErrorActionPreference = "Stop"
 Start-Sleep 11; Keys "1c 9c"                      # boot the default entry
 Start-Sleep $IdleSeconds                          # let the session settle (autostart, indexers, notifiers)
