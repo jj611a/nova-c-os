@@ -1,0 +1,8 @@
+{
+    "KPlugin": {
+        "Authors": [{ "Name": "Nova-C OS" }],
+        "Id": "NovaC",
+        "License": "CC-BY-SA-4.0",
+        "Name": "Nova-C"
+    }
+}

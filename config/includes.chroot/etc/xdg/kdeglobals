@@ -1,0 +1,7 @@
+[General]
+AccentColor=76,225,240
+fixed=Fira Code,10,-1,5,50,0,0,0,0,0
+
+[KDE]
+LookAndFeelPackage=org.novac.desktop
+SingleClick=false

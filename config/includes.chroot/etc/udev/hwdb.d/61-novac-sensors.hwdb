@@ -1,0 +1,5 @@
+# Nova-C OS accelerometer mounting-matrix quirks (iio-sensor-proxy reads these).
+# Format: match on DMI string, then ACCEL_MOUNT_MATRIX. Add entries as devices are tested.
+# Example (placeholder, replace with a real device):
+#sensor:modalias:acpi:BMA250*:dmi:*svnVENDOR:*pnPRODUCT:*
+# ACCEL_MOUNT_MATRIX=0, -1, 0; -1, 0, 0; 0, 0, 1

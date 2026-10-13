@@ -1,0 +1,7 @@
+# Nova-C OS updates (desktop defaults, branding, Nova-C tools). Built from github.com/jj611a/nova-c-os.
+# Debian packages and security fixes keep coming from the Debian sources.
+Types: deb
+URIs: https://jj611a.github.io/nova-c-os/
+Suites: trixie
+Components: main
+Signed-By: /usr/share/keyrings/nova-c-archive-keyring.gpg

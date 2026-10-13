@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Nova-C OS desktop wallpaper (1920x1080). build.sh fills @LOGO_B64@ and renders it with rsvg-convert. -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050a12"/>
+      <stop offset="0.6" stop-color="#091523"/>
+      <stop offset="1" stop-color="#0c2233"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.74" cy="0.5" r="0.55">
+      <stop offset="0" stop-color="#1a8fa8" stop-opacity="0.55"/>
+      <stop offset="0.45" stop-color="#0e4f63" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#050a12" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="14"/></filter>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#base)"/>
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+  <image x="1000" y="105" width="880" height="864" opacity="0.30" filter="url(#soft)" xlink:href="data:image/png;base64,@LOGO_B64@"/>
+  <image x="1000" y="105" width="880" height="864" opacity="0.38" xlink:href="data:image/png;base64,@LOGO_B64@"/>
+</svg>

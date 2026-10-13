@@ -1,0 +1,13 @@
+# build outputs (ISOs go to GitHub Releases, not git)
+output/
+*.iso
+*.iso.sha256
+build.log
+serial.log
+# downloaded third-party debs (scripts/fetch-craft-suite.sh) and locally built packages
+extras/
+packages/dist/
+# never commit signing material
+*.PRIVATE.asc
+*.rev
+.novac-signing/

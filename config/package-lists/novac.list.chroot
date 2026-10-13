@@ -1,0 +1,97 @@
+# ---- KDE Plasma 6 desktop (lean: recommends are off, so runtime pieces are listed explicitly) ----
+plasma-desktop
+plasma-workspace
+kwin-wayland
+kwin-x11
+sddm
+sddm-theme-breeze
+kde-config-sddm
+plasma-nm
+plasma-pa
+powerdevil
+kscreen
+bluedevil
+kinfocenter
+plasma-systemmonitor
+plasma-integration
+plasma-discover
+xdg-desktop-portal-kde
+xdg-desktop-portal-gtk
+polkit-kde-agent-1
+kde-cli-tools
+kwayland-integration
+qt6-wayland
+systemsettings
+udisks2
+xwayland
+# X11 fallback session (hardware/VMs where Wayland+EGL does not come up)
+xserver-xorg-core
+xserver-xorg-input-libinput
+
+# ---- look: Breeze dark + Papirus icons + fonts ----
+breeze
+breeze-gtk-theme
+kde-config-gtk-style
+papirus-icon-theme
+fonts-noto-core
+fonts-firacode
+
+# ---- apps ----
+konsole
+dolphin
+kate
+firefox-esr
+fastfetch
+
+# ---- touch / laptop hardware ----
+maliit-keyboard
+iio-sensor-proxy
+
+# ---- live system (live-config only creates the live user if user-setup is installed) ----
+user-setup
+
+# ---- things the desktop needs at runtime that are only "Recommends" ----
+kbd
+dbus-user-session
+rtkit
+upower
+bluez
+libgl1-mesa-dri
+libegl-mesa0
+libgles2
+libgbm1
+
+# ---- base system ----
+systemd-sysv
+network-manager
+pipewire
+pipewire-pulse
+wireplumber
+flatpak
+zram-tools
+earlyoom
+power-profiles-daemon
+sudo
+locales
+
+# ---- firmware for broad laptop hardware support (non-free-firmware) ----
+# Explicit list instead of the firmware-linux metapackage: that one pulls in firmware-b43-installer,
+# which downloads proprietary firmware from GitHub during the image build (fragile, fails offline).
+firmware-linux-free
+firmware-amd-graphics
+firmware-intel-graphics
+firmware-intel-misc
+firmware-intel-sound
+firmware-nvidia-graphics
+firmware-misc-nonfree
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
+firmware-mediatek
+firmware-brcm80211
+firmware-libertas
+firmware-ti-connectivity
+firmware-ath9k-htc
+firmware-sof-signed
+intel-microcode
+amd64-microcode

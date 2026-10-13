@@ -1,0 +1,9 @@
+Package: nova-c-archive-keyring
+Version: 0.1.0
+Architecture: all
+Maintainer: Nova-C OS <novacore.iq@gmail.com>
+Section: misc
+Priority: important
+Description: Nova-C OS update repository: signing key and APT source
+ Lets APT (and Discover) fetch and verify Nova-C OS updates from
+ https://jj611a.github.io/nova-c-os/ .

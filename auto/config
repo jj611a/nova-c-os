@@ -1,0 +1,29 @@
+#!/bin/sh
+# live-build calls this on `lb config`. Keep all options here so the build is reproducible.
+set -e
+
+# DEBUG_BOOT=1: verbose boot, console + journal mirrored to the serial port (VirtualBox: --uart1 ... file).
+if [ "${DEBUG_BOOT:-0}" = 1 ]; then
+	BOOT_EXTRA="console=tty0 console=ttyS0,115200 systemd.journald.forward_to_console=1 systemd.log_level=info"
+else
+	BOOT_EXTRA="quiet splash"
+fi
+
+lb config noauto \
+	--distribution trixie \
+	--architectures amd64 \
+	--archive-areas "main contrib non-free-firmware" \
+	--binary-images iso-hybrid \
+	--bootloaders "grub-efi,syslinux" \
+	--debian-installer none \
+	--apt-recommends false \
+	--firmware-chroot false \
+	--firmware-binary false \
+	--apt-options "--yes -o Acquire::ForceIPv4=true -o Acquire::Retries=5 -o Acquire::http::Timeout=30" \
+	--security true \
+	--updates true \
+	--iso-application "Nova-C OS" \
+	--iso-publisher "Nova-C OS project; based on Debian" \
+	--iso-volume "NOVA_C_OS" \
+	--bootappend-live "boot=live components hostname=nova-c ${BOOT_EXTRA}" \
+	"${@}"

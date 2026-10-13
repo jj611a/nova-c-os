@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Nova-C OS boot splash. build.sh fills @LOGO_B64@; live-build fills the other @PLACEHOLDERS@
+     and renders this to splash.png (4:3). The GRUB menu starts at ~52% height, so keep art above that. -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="640" height="480" viewBox="0 0 640 480">
+  <defs>
+    <radialGradient id="bg" cx="0.22" cy="0.2" r="0.95">
+      <stop offset="0" stop-color="#0f2236"/>
+      <stop offset="0.55" stop-color="#08111f"/>
+      <stop offset="1" stop-color="#04070d"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="480" fill="url(#bg)"/>
+
+  <image x="34" y="26" width="150" height="147" xlink:href="data:image/png;base64,@LOGO_B64@"/>
+
+  <g font-family="DejaVu Sans" fill="#e8fcff">
+    <text x="206" y="82" font-size="40" font-weight="bold" fill="#9ff4ff">Nova-C OS</text>
+    <text x="208" y="108" font-size="13" fill="#cfeef3">Lightweight desktop OS, based on @PROJECT@ 13 (@DISTRIBUTION@)</text>
+    <text x="208" y="148" font-size="10" fill="#7fb6c0">Built: @DATE@</text>
+    <text x="208" y="164" font-size="10" fill="#7fb6c0">linux: @LINUX_VERSIONS@</text>
+    <text x="208" y="180" font-size="10" fill="#7fb6c0">live-boot: @LIVE_BOOT_VERSION@   live-config: @LIVE_CONFIG_VERSION@</text>
+  </g>
+</svg>

@@ -1,0 +1,11 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [{ "Name": "Nova-C OS" }],
+        "Description": "Nova-C OS dark slate desktop with a cyan accent",
+        "Id": "org.novac.desktop",
+        "License": "GPL-2.0+",
+        "Name": "Nova-C",
+        "Version": "0.1"
+    }
+}

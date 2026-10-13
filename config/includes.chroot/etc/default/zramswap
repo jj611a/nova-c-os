@@ -1,0 +1,3 @@
+# compressed swap in RAM: big win on 2 GB tablets
+ALGO=zstd
+PERCENT=50

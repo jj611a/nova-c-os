@@ -1,0 +1,25 @@
+#!/bin/sh
+# Boot into SDDM -> KDE Plasma as the live user, with the Nova-C dark/cyan look.
+set -e
+
+systemctl enable sddm.service
+systemctl set-default graphical.target
+systemctl enable NetworkManager.service
+systemctl enable earlyoom.service || true
+
+# Nova-C colour scheme = Breeze Dark with the logo's cyan as accent and a deep slate base.
+S=/usr/share/color-schemes
+sed -e 's/^Name=.*/Name=Nova-C/' \
+    -e 's/61,174,233/76,225,240/g' \
+    -e 's/35,38,41/14,20,31/g' \
+    -e 's/27,30,32/10,15,24/g' \
+    -e 's/49,54,59/22,31,46/g' \
+    -e 's/42,46,50/17,25,38/g' \
+    $S/BreezeDark.colors > $S/NovaC.colors
+
+# every new terminal shows system info, like the reference screenshot
+cat >> /etc/skel/.bashrc <<'EOS'
+
+# Nova-C OS: greet new interactive terminals
+if [ -n "$PS1" ] && command -v fastfetch >/dev/null 2>&1; then fastfetch; fi
+EOS
