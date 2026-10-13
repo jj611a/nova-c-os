@@ -1,31 +1,32 @@
 Package: nova-c-archive-keyring
-Version: 0.1.0
+Version: 0.1.1
 Architecture: all
 Maintainer: Nova-C OS <novacore.iq@gmail.com>
+Depends: ca-certificates
 Priority: important
 Section: misc
-Filename: pool/main/n/nova-c-archive-keyring/nova-c-archive-keyring_0.1.0_all.deb
-Size: 1428
-SHA256: d12e4bba0f22575b2b804a48b2d678151ab160377517ec6c126c0e285aa97bf0
-SHA1: cdc22e32a63d0a0bf756a698a2219eaf5e84e893
-MD5sum: 11c4a96e884b5ccafa02abe10f5d4fd3
+Filename: pool/main/n/nova-c-archive-keyring/nova-c-archive-keyring_0.1.1_all.deb
+Size: 1440
+SHA256: 92044bc8bb6b0ca811965b44093d58682aa69316fbfc183bcc950812d2e98fc3
+SHA1: c468119eccfabf41cf00f4ea69e3d426be73e602
+MD5sum: 0e5a0bfd8dddb372311910e96af5c479
 Description: Nova-C OS update repository: signing key and APT source
  Lets APT (and Discover) fetch and verify Nova-C OS updates from
  https://jj611a.github.io/nova-c-os/ .
 Installed-Size: 8
 
 Package: nova-c-desktop
-Version: 0.1.0
+Version: 0.1.1
 Architecture: all
 Maintainer: Nova-C OS <novacore.iq@gmail.com>
-Depends: nova-c-archive-keyring, unattended-upgrades, plasma-workspace, kwin-wayland, sddm, breeze, papirus-icon-theme, fonts-noto-core, fonts-firacode, fastfetch, zram-tools, earlyoom
+Depends: nova-c-archive-keyring, nova-c-driver-manager, unattended-upgrades, plasma-workspace, kwin-wayland, sddm, breeze, papirus-icon-theme, fonts-noto-core, fonts-firacode, fastfetch, zram-tools, earlyoom
 Priority: optional
 Section: misc
-Filename: pool/main/n/nova-c-desktop/nova-c-desktop_0.1.0_all.deb
-Size: 479052
-SHA256: 5e89a7cf8c78b31d7143f5c0961c89a2660453b6c4b2840df3ea6d80412fc873
-SHA1: 3afa4ecb66aab1ed5c83e7e2e3cffeecf7e90c78
-MD5sum: 98c07e0a62b45b4a0152366dfc2f0e5f
+Filename: pool/main/n/nova-c-desktop/nova-c-desktop_0.1.1_all.deb
+Size: 478992
+SHA256: 4e7fb33aed1ba18d7c4c2a0d7c975233eeac8045a4da2860419fc1feeb1d14d7
+SHA1: 67555021450448facda29c2303a0ab4933a83b91
+MD5sum: cc9ee68b7445832d66a460bcd19c1b22
 Description: Nova-C OS desktop defaults, branding and tuning
  The Nova-C look (dark slate + cyan Plasma theme, top bar + dock layout, wallpaper,
  login screen), OS identity (os-release), memory tuning (zram-friendly sysctl,
@@ -33,4 +34,23 @@ Description: Nova-C OS desktop defaults, branding and tuning
  background updates from Debian security and the Nova-C OS repository.
  Updating this package updates every installed Nova-C OS system.
 Installed-Size: 536
+
+Package: nova-c-driver-manager
+Version: 0.1.0
+Architecture: all
+Maintainer: Nova-C OS <novacore.iq@gmail.com>
+Depends: python3, python3-apt, isenkram-cli, nvidia-detect, pciutils, usbutils, kmod, kdialog, konsole, pkexec, polkitd, dbus-bin, network-manager, mokutil
+Priority: optional
+Section: admin
+Filename: pool/main/n/nova-c-driver-manager/nova-c-driver-manager_0.1.0_all.deb
+Size: 8356
+SHA256: 62e7ed737f092b335ac039642bd08240d1b6c18f40f6dd8a97ba440342be7cd9
+SHA1: d3ce7d2134a5cb1030274ecce3972932e4705271
+MD5sum: edccdf0394842e96a5929de240cb7f54
+Description: Nova-C OS hardware driver finder
+ Recognises devices that need extra drivers (NVIDIA graphics, Broadcom and old
+ Intel Wi-Fi, missing firmware, and anything Debian maps to a hardware ID), and
+ once the computer is online asks the user whether to download and install them.
+ Also available from the menu as "Hardware Drivers".
+Installed-Size: 44
 
