@@ -51,9 +51,16 @@ if [ "${RESUME:-0}" != 1 ]; then
 	if [ "${WITH_CRAFT:-0}" = 1 ]; then
 		( cd "$SRC/extras/craft" && sha256sum -c --quiet "$SRC/scripts/craft-suite.sha256" ) \
 			|| { echo "Craft debs missing or not matching the pins: run scripts/fetch-craft-suite.sh"; exit 1; }
-		cp "$SRC"/extras/craft/*.deb "$WORK/config/packages.chroot/"
+		# live-build only picks up Debian-style names (name_version_arch.deb) from packages.chroot, and
+		# upstream ships "photocraft-0.8.2-linux-x86_64.deb": copy each under its canonical name
+		for deb in "$SRC"/extras/craft/*.deb; do
+			canon="$(dpkg-deb -f "$deb" Package)_$(dpkg-deb -f "$deb" Version)_$(dpkg-deb -f "$deb" Architecture).deb"
+			cp "$deb" "$WORK/config/packages.chroot/$canon"
+		done
 		# Recommends of the Craft debs needed at runtime (software Vulkan where the GPU has none)
 		printf 'mesa-vulkan-drivers\nlibvulkan1\n' > "$WORK/config/package-lists/craft.list.chroot"
+		# and install the apps themselves (by package name)
+		for deb in "$SRC"/extras/craft/*.deb; do dpkg-deb -f "$deb" Package; done >> "$WORK/config/package-lists/craft.list.chroot"
 	fi
 fi
 
@@ -71,6 +78,11 @@ lb build 2>&1 | tee -a "$WORK/build.log"
 NAME=novac; [ "${WITH_CRAFT:-0}" = 1 ] && NAME=novac-craft
 ISO="$(ls -1 "$WORK"/*.iso 2>/dev/null | head -n1)"
 [ -n "$ISO" ] || { echo "BUILD FAILED: no ISO produced, see $WORK/build.log"; exit 1; }
+# every package we ship ourselves must really be in the image (live-build skips some files silently)
+for deb in "$WORK"/config/packages.chroot/*.deb; do
+	p=$(dpkg-deb -f "$deb" Package)
+	grep -qE "^$p[[:space:]]" "$WORK/chroot.packages.install" || { echo "BUILD FAILED: $p is not installed in the image"; exit 1; }
+done
 cp -v "$ISO" "$OUT/$NAME.iso"
 cp -v "$WORK/build.log" "$OUT/build.log"
 ( cd "$OUT" && sha256sum $NAME.iso | tee $NAME.iso.sha256 )
