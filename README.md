@@ -1,73 +1,194 @@
+<div align="center">
+
+<img src="assets/logo.png" alt="Nova-C OS logo" width="160">
+
 # Nova-C OS
 
-Lightweight, Debian-based live/installable desktop OS with a dark slate + cyan KDE Plasma 6 desktop.
-Main target: laptops (mouse/touchpad + keyboard); touchscreens are supported but secondary.
-Nova-C OS is *based on Debian*; it is not an official Debian release.
+**A fast, good-looking Linux desktop for laptops, built on Debian 13.**
 
-- Research: [RESEARCH.md](RESEARCH.md) (written before the Phosh -> Plasma switch)
-- Status and test results: [docs/REPORT.md](docs/REPORT.md)
-- Logo: [assets/logo.png](assets/logo.png)
-- Update repository: <https://jj611a.github.io/nova-c-os/> (signed APT repo, `gh-pages` branch)
+Dark slate and cyan, a clean dock, real drivers, and updates that install themselves.
 
-## Stack
+![Base](https://img.shields.io/badge/base-Debian%2013%20trixie-a80030?style=flat-square&logo=debian&logoColor=white)
+![Desktop](https://img.shields.io/badge/desktop-KDE%20Plasma%206.3-1d99f3?style=flat-square&logo=kde&logoColor=white)
+![Kernel](https://img.shields.io/badge/kernel-Linux%206.12%20LTS-f5c400?style=flat-square&logo=linux&logoColor=black)
+![Session](https://img.shields.io/badge/session-Wayland-4ce1f0?style=flat-square)
+![Arch](https://img.shields.io/badge/arch-amd64%20%C2%B7%20UEFI-0c2233?style=flat-square)
+![Status](https://img.shields.io/badge/status-0.1.3%20early%20release-9ff4ff?style=flat-square)
 
-Debian 13 "trixie" (kernel 6.12) -> SDDM -> KDE Plasma 6.3 on KWin (Wayland), PipeWire, NetworkManager,
-Flatpak/Discover, Firefox ESR, Calamares installer. Look: custom `org.novac.desktop` look-and-feel (NovaC colour
-scheme, Papirus-Dark icons, top bar + floating bottom dock, generated wallpaper and boot splash).
+<img src="docs/screenshots/02-desktop.png" alt="Nova-C OS desktop" width="820">
 
-## Layout
+</div>
 
-- `auto/` live-build options (`auto/config`)
-- `config/package-lists/` packages; `config/hooks/` build-time hooks (desktop, branding, installer);
-  `config/includes.chroot/` image-only files (zram size, live user name); `config/bootloaders/` GRUB theme
-- `packages/` Nova-C's own Debian packages, installed in the image **and** published as updates:
-  - `nova-c-desktop`: look-and-feel, wallpaper, SDDM/KWin/fastfetch defaults, os-release, RAM tuning, automatic updates
-  - `nova-c-archive-keyring`: the update repository's signing key and APT source
-- `branding/` SVG templates for the boot splash, wallpaper and launcher icon (the logo is embedded at build time)
-- `scripts/` build, test, update-publishing and helper scripts
+---
 
-## Build (inside Debian/WSL2)
+## ✨ Highlights
 
-One-time: `sudo scripts/setup-build-env.sh`
+| | |
+|---|---|
+| 💻 **Laptop first** | Built for mouse, touchpad and keyboard; touchscreens and 2-in-1s work too (on-screen keyboard, auto-rotation) |
+| 🎨 **Its own look** | Nova-C boot splash, login screen, login splash, wallpaper and colour scheme: no stock Debian or KDE branding in sight |
+| 🔄 **Self-updating** | Every installed system pulls Nova-C updates from this repository and Debian security fixes, automatically, once a day |
+| 🧰 **Hardware Drivers** | Detects hardware that needs extra drivers (NVIDIA, Broadcom Wi-Fi, missing firmware…) and offers to install them once you're online |
+| 💾 **Easy install** | Graphical installer: erase disk or partition by hand (for dual boot), optional disk encryption, UEFI with Secure Boot |
+| 🪶 **Kept lean** | Indexer, update notifier and other background extras off by default; compressed RAM swap (zram) and an out-of-memory guard |
+| 🎬 **Creative edition** | An optional ISO ships the seven open-source **ArtCraft** apps: Photoshop, Illustrator, Premiere, Lightroom, After Effects, InDesign and Acrobat alternatives |
+
+## 📸 A quick tour
+
+<table>
+<tr>
+<td align="center" width="50%"><img src="docs/screenshots/17-boot-splash.png" alt="Boot splash"><br><sub><b>Boot splash</b>: logo and progress bar instead of scrolling text</sub></td>
+<td align="center" width="50%"><img src="docs/screenshots/13-installed-login.png" alt="Login screen"><br><sub><b>Login screen</b></sub></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/16-login-splash.png" alt="Login splash"><br><sub><b>Login splash</b> while the desktop loads (replaces KDE's)</sub></td>
+<td align="center"><img src="docs/screenshots/03-launcher-menu.png" alt="Launcher menu"><br><sub><b>App launcher</b>: press the Meta (Windows) key</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/05-tiled-windows.png" alt="Tiled windows"><br><sub><b>Snap windows</b> side by side with Meta+←/→</sub></td>
+<td align="center"><img src="docs/screenshots/04-terminal-fastfetch.png" alt="Terminal"><br><sub><b>Terminal</b> with a Nova-C greeting</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/10a-installer-welcome.png" alt="Installer"><br><sub><b>Installer</b>, Nova-C branded</sub></td>
+<td align="center"><img src="docs/screenshots/12-installer-done.png" alt="Installer done"><br><sub>Installed in about 10 minutes (VM)</sub></td>
+</tr>
+</table>
+
+## 🚀 Get it
+
+Nova-C is built from this repository (see [Build](#-build-it-yourself)). Two flavours:
+
+| ISO | Size | For |
+|---|---|---|
+| `Nova-C-OS-0.1.3.iso` | 1.75 GB | Everyday laptop use |
+| `Nova-C-OS-0.1.3-Craft.iso` | 2.26 GB | The same, plus the seven ArtCraft creative apps |
+
+**Try it:**
+
+1. Write the ISO to a USB stick with [Rufus](https://rufus.ie) (choose *DD image* mode) or [balenaEtcher](https://etcher.balena.io).
+2. Boot the laptop from the stick (usually F12, F11, F8 or Esc at power-on chooses the boot device).
+3. You land on the live desktop, logged in automatically. The live password is `live` (user `user`).
+4. To install, open the menu and choose **Install Nova-C OS**.
+
+> If the laptop refuses to boot the stick, turn Secure Boot off once in the firmware settings, or pick the stick from the firmware's boot menu.
+
+## 🎬 The Craft edition
+
+The Craft ISO adds [ArtCraft](https://getartcraft.com)'s open-source creative suite ([github.com/storytold](https://github.com/storytold), Apache-2.0, written in Rust), installed and in the menu:
+
+<table>
+<tr>
+<td align="center" width="33%"><img src="docs/screenshots/20-photocraft.png" alt="PhotoCraft"><br><b>PhotoCraft</b><br><sub>image editing (Photoshop-style)</sub></td>
+<td align="center" width="33%"><img src="docs/screenshots/21-vectorcraft.png" alt="VectorCraft"><br><b>VectorCraft</b><br><sub>vector art (Illustrator-style)</sub></td>
+<td align="center" width="33%"><img src="docs/screenshots/22-filmcraft.png" alt="FilmCraft"><br><b>FilmCraft</b><br><sub>video editing (Premiere-style)</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/23-lightcraft.png" alt="LightCraft"><br><b>LightCraft</b><br><sub>photo library and RAW (Lightroom-style)</sub></td>
+<td align="center"><img src="docs/screenshots/24-effectcraft.png" alt="EffectCraft"><br><b>EffectCraft</b><br><sub>motion graphics (After Effects-style)</sub></td>
+<td align="center"><img src="docs/screenshots/25-designcraft.png" alt="DesignCraft"><br><b>DesignCraft</b><br><sub>page layout (InDesign-style)</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/26-pdfcraft.png" alt="PdfCraft"><br><b>PdfCraft</b><br><sub>PDF editing (Acrobat-style)</sub></td>
+<td align="center" colspan="2"><img src="docs/screenshots/27-craft-menu.png" alt="Craft apps in the menu" width="80%"><br><sub>All seven in the app menu: search "craft"</sub></td>
+</tr>
+</table>
+
+The apps are young (early alpha) and move fast. Their exact versions are pinned by checksum in
+[`scripts/craft-suite.sha256`](scripts/craft-suite.sha256), so a build never silently picks up a changed download.
+
+## 🔄 How updates work
+
+Nova-C's own parts (look, settings, tools) are ordinary Debian packages that live in this repository and are
+published as a signed APT repository on GitHub Pages: <https://jj611a.github.io/nova-c-os/>.
+
+```mermaid
+flowchart LR
+    A["packages/ in this repo<br/>bump a version"] -->|scripts/publish-updates.ps1| B["Signed APT repository<br/>gh-pages → GitHub Pages"]
+    D["Debian security<br/>and point releases"] --> C
+    B --> C["Every installed Nova-C<br/>daily automatic update"]
+    C --> E["New version on next use<br/>(or at once with apt full-upgrade)"]
+```
+
+This has been tested end to end: a machine installed from 0.1.1 updated itself to 0.1.2 and then 0.1.3
+and picked up the new boot splash with no user action ([screenshot](docs/screenshots/15-auto-update-0.1.3.png)).
+
+| Package | What it carries |
+|---|---|
+| `nova-c-desktop` | Look and feel, wallpaper, boot and login splash, OS identity, RAM tuning, automatic-update settings |
+| `nova-c-driver-manager` | **Hardware Drivers**: detection and the "download and install" pop-up |
+| `nova-c-archive-keyring` | The repository's signing key and APT source |
+
+**Ship an update:** edit files under `packages/<name>/`, bump `Version:` in its `control`, then
+`powershell -File scripts\publish-updates.ps1 -Message "what changed"`.
+
+> 🔐 Updates run as root on every installed machine, so the signing key is the keys to the kingdom. The private key
+> lives only in the build machine's WSL (`/root/.novac-signing`) plus an offline backup made by
+> `scripts/repo-key.sh --backup`. It is never committed. Lose it and installed systems can no longer be updated.
+
+## 🧰 Hardware
+
+Debian 13's kernel 6.12 and Mesa 25, plus every redistributable firmware package that matters on laptops:
+Intel, AMD and NVIDIA graphics; Intel, Realtek, Atheros, MediaTek and Broadcom Wi-Fi and Bluetooth; Intel SOF and
+Cirrus audio. What can't ship in the image (NVIDIA's own driver, Broadcom `wl`, some firmware) is offered by
+**Hardware Drivers** after first boot.
+
+Full details, including notes for the **Medion Akoya E3216 / E3222**: [docs/HARDWARE.md](docs/HARDWARE.md).
+
+## 🛠 Build it yourself
+
+Builds run in Debian 13 (WSL2 works) with `live-build`; testing uses VirtualBox on Windows.
 
 ```bash
-sudo scripts/build.sh                    # dev build: serial boot log on -> output/novac.iso
-sudo DEBUG_BOOT=0 scripts/build.sh       # release build (quiet splash, no serial console)
-sudo scripts/fetch-craft-suite.sh && sudo WITH_CRAFT=1 scripts/build.sh   # + ArtCraft "Craft" apps -> output/novac-craft.iso
+sudo scripts/setup-build-env.sh                  # once: build tools
+sudo DEBUG_BOOT=0 scripts/build.sh               # release ISO   -> output/novac.iso
+sudo scripts/build.sh                            # debug ISO (boot log on the serial port)
+sudo scripts/fetch-craft-suite.sh && \
+sudo WITH_CRAFT=1 DEBUG_BOOT=0 scripts/build.sh  # Craft edition -> output/novac-craft.iso
 ```
-
-`scripts/unlock.sh` clears a stale live-build lock after a crashed build.
-
-## Updates: how installed systems stay current
-
-Every Nova-C system has `/etc/apt/sources.list.d/nova-c.sources` (from `nova-c-archive-keyring`) and installs updates
-automatically once a day with `unattended-upgrades`: Debian security fixes from Debian, Nova-C updates from
-<https://jj611a.github.io/nova-c-os/>. Users can also update at once with `sudo apt update && sudo apt full-upgrade`
-or Discover.
-
-To ship an update to every installed system:
-
-1. Change files under `packages/<name>/` and bump `Version:` in `packages/<name>/control`
-   (for a new OS version also bump `VERSION_ID`/`VERSION`/`PRETTY_NAME` in `packages/nova-c-desktop/root/usr/lib/os-release`).
-2. `powershell -File scripts\publish-updates.ps1 -Message "nova-c-desktop 0.1.1: ..."`
-   (builds the .debs, signs the repository, pushes `gh-pages`).
-
-New packages a release needs can be added to `Depends:` of `nova-c-desktop`; machines install them with the update.
-
-**Security:** updates run as root on every installed machine, so whoever holds the signing key controls all of them.
-The private key is in WSL at `/root/.novac-signing` with a backup made by `scripts/repo-key.sh --backup`; keep that
-backup offline and never commit it. Losing the key means installed systems can no longer receive Nova-C updates.
-
-## Test (Windows + VirtualBox)
 
 ```powershell
-powershell -File scripts\test-vbox.ps1            # laptop-like VM: mouse + keyboard, no touch (default)
-powershell -File scripts\test-vbox.ps1 -Touch     # USB multi-touch screen instead of a mouse
-powershell -File scripts\test-vbox.ps1 -Accel3d   # enable VirtualBox 3D (tests the GPU/GL path)
-powershell -File scripts\run-ui-tests.ps1         # scripted UI test with screenshots (docs/screenshots)
-powershell -File scripts\measure-ram.ps1          # idle memory per program (dev build)
+powershell -File scripts\test-vbox.ps1            # laptop-like VM (mouse + keyboard, no touch)
+powershell -File scripts\test-vbox.ps1 -Touch     # touchscreen VM
+powershell -File scripts\run-ui-tests.ps1         # scripted UI test, screenshots into docs/screenshots
+powershell -File scripts\measure-ram.ps1          # idle memory per program
 ```
 
-The dev build mirrors the boot log to `output\serial.log`. `scripts\vbox-type.ps1` types into the VM by scancode
-(VirtualBox cannot inject mouse clicks from the command line, so tests drive the desktop with keyboard shortcuts).
-Default live login: `user` / `live` (autologin in the live session).
+A build fails loudly if live-build produced no ISO or dropped any package we ship.
+
+<details>
+<summary><b>Repository layout</b></summary>
+
+| Path | What |
+|---|---|
+| `auto/config` | live-build options |
+| `config/package-lists/` | Everything installed in the image, with notes on why |
+| `config/hooks/` | Build-time hooks: desktop, branding, installer |
+| `config/includes.chroot/` | Image-only files (zram, live user, live session tweaks) |
+| `config/bootloaders/` | GRUB menu theme |
+| `packages/` | Nova-C's own Debian packages (also published as updates) |
+| `branding/` | SVG templates for boot menu, wallpaper and icons; the logo is embedded at build time |
+| `scripts/` | Build, publish, test and helper scripts |
+| `docs/` | [Test report](docs/REPORT.md), [hardware notes](docs/HARDWARE.md), screenshots |
+| `RESEARCH.md` | The original research notes |
+
+</details>
+
+## 📋 Status and honest limits
+
+Nova-C is young. Tested in VirtualBox; **not yet on real laptops**: Wi-Fi, sound, suspend, touchpads and GPUs
+on real hardware need feedback. Please [open an issue](https://github.com/jj611a/nova-c-os/issues) with what works and what doesn't
+(`lspci -nnk` output helps).
+
+- amd64 with 64-bit UEFI (or BIOS for the live ISO); no ARM yet
+- 4 GB RAM is comfortable; 2 GB works but is tight with Plasma
+- Tested installs used "Erase disk"; dual boot, disk encryption and Secure Boot are untested so far
+- The live session is for trying and installing: its password is public
+
+## 🙏 Built on
+
+[Debian](https://www.debian.org) · [KDE Plasma](https://kde.org/plasma-desktop/) · [Calamares](https://calamares.io) ·
+[Plymouth](https://www.freedesktop.org/wiki/Software/Plymouth/) · [live-build](https://wiki.debian.org/DebianLive) ·
+[isenkram](https://wiki.debian.org/Isenkram) · [ArtCraft](https://getartcraft.com) · [Papirus icons](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme)
+
+<sub>Nova-C OS is <i>based on</i> Debian; it is not an official Debian release and is not affiliated with Debian, KDE or ArtCraft.</sub>
+

@@ -1,5 +1,10 @@
 # Nova-C OS: status and test report
 
+> **Note (0.1.3):** this report covers the first Plasma build (0.1). Since then the installer, automatic updates,
+> Hardware Drivers, boot/login splash and the Craft edition were added and tested in VMs; see the
+> [README](../README.md) and screenshots 10–27. Several "limits" below are now resolved (there is an installer).
+> The screenshots 01–09 were re-taken on a later build, so they can show a newer version than this text.
+
 Build under test: `output/novac.iso`, **1520 MB**, sha256 `1b08c07c3b9da792f12ca3b65dd171fdc7b5a98d5b6135730346b6988d673d7b`.
 Tested on 13 Oct 2026 in VirtualBox 7.2.20 (Windows 10 host, Ryzen 5 5500). Everything below was run by
 [`scripts/run-ui-tests.ps1`](../scripts/run-ui-tests.ps1) on that exact ISO; screenshots are in `docs/screenshots/`.
