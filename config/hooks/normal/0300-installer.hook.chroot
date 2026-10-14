@@ -20,6 +20,15 @@ if [ -f "$B" ]; then
 		-e 's#^( *productLogo: *).*#\1"/usr/share/icons/hicolor/128x128/apps/novac-logo.png"#' \
 		-e 's#^( *productIcon: *).*#\1"/usr/share/icons/hicolor/128x128/apps/novac-logo.png"#' \
 		"$B"
+	# welcome picture and install slideshow: the Nova-C wallpaper instead of Debian's artwork
+	# (both are scaled to fit by Calamares; the wallpaper comes from nova-c-desktop)
+	D=$(dirname "$B")
+	W=/usr/share/wallpapers/NovaC/contents/images/1920x1080.png
+	if [ -f "$W" ]; then
+		cp "$W" "$D/welcome.png"
+		cp "$W" "$D/slide1.png"
+	fi
+	sed -i "s#Welcome to Debian GNU/Linux.#Welcome to $NAME $VERSION_ID.#" "$D/show.qml"
 fi
 
 # Users page: show a "Require strong passwords" checkbox (on by default) so a simple password only warns

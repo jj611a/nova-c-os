@@ -79,6 +79,17 @@ grub-efi-amd64-signed
 shim-signed
 efibootmgr
 os-prober
+# tools the installer runs (Recommends of calamares/kpmcore, dropped with recommends off):
+# unsquashfs copies the system to disk; mkfs.vfat formats the EFI partition; the rest let the
+# partition page create/resize btrfs, xfs, NTFS (dual boot with Windows), GPT and LVM
+squashfs-tools
+dosfstools
+mtools
+btrfs-progs
+xfsprogs
+ntfs-3g
+gdisk
+lvm2
 # password dictionary for the installer's password check (a dropped Recommends of libcrack2: without it every
 # password fails with "error loading dictionary")
 cracklib-runtime
