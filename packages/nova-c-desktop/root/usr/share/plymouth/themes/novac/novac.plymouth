@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Nova-C
+Description=Nova-C OS boot splash: glowing logo and a cyan progress bar on a deep slate background
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/novac
+ScriptFile=/usr/share/plymouth/themes/novac/novac.script

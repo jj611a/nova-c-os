@@ -1,0 +1,105 @@
+# Nova-C OS boot splash (Plymouth script theme).
+# Deep slate background, the Nova-C logo gently pulsing, "Nova-C OS" and a thin cyan progress bar.
+# Also handles the disk-encryption password prompt and boot messages, so encrypted installs can unlock.
+
+Window.SetBackgroundTopColor(0.016, 0.027, 0.051);      # #04070d
+Window.SetBackgroundBottomColor(0.047, 0.133, 0.200);   # #0c2233
+
+CX = Window.GetX() + Window.GetWidth() / 2;
+CY = Window.GetY() + Window.GetHeight() / 2;
+
+# ---- logo + name ----
+logo.image = Image("logo.png");
+logo.sprite = Sprite(logo.image);
+logo.sprite.SetPosition(CX - logo.image.GetWidth() / 2, CY - logo.image.GetHeight() / 2 - 50, 10);
+logo.angle = 0;
+
+title.image = Image.Text("Nova-C OS", 0.624, 0.957, 1.0, 1, "Sans Bold 20");
+title.sprite = Sprite(title.image);
+title.sprite.SetPosition(CX - title.image.GetWidth() / 2, CY + logo.image.GetHeight() / 2 - 20, 10);
+
+# ---- progress bar ----
+track.image = Image("bar-track.png");
+track.sprite = Sprite(track.image);
+track.x = CX - track.image.GetWidth() / 2;
+track.y = CY + logo.image.GetHeight() / 2 + 30;
+track.sprite.SetPosition(track.x, track.y, 10);
+
+fill.original = Image("bar-fill.png");
+fill.sprite = Sprite();
+fill.sprite.SetPosition(track.x, track.y, 11);
+fill.width = 0;
+
+fun progress_callback(duration, progress) {
+	w = Math.Int(fill.original.GetWidth() * progress);
+	if (w < 1) w = 1;
+	if (w != fill.width) {
+		fill.width = w;
+		fill.sprite.SetImage(fill.original.Scale(w, fill.original.GetHeight()));
+	}
+}
+Plymouth.SetBootProgressFunction(progress_callback);
+
+# ---- gentle pulse of the logo while booting ----
+status = "normal";
+fun refresh_callback() {
+	if (global.status == "normal") {
+		logo.angle += 0.05;
+		logo.sprite.SetOpacity(0.75 + 0.25 * Math.Cos(logo.angle));
+	} else {
+		logo.sprite.SetOpacity(1);
+	}
+}
+Plymouth.SetRefreshFunction(refresh_callback);
+
+# ---- password prompt (encrypted disk) ----
+prompt.sprite = Sprite();
+prompt.sprite.SetZ(20);
+bullets.sprite = Sprite();
+bullets.sprite.SetZ(20);
+
+fun show_centered(sprite, image, y) {
+	sprite.SetImage(image);
+	sprite.SetPosition(CX - image.GetWidth() / 2, y, 20);
+	sprite.SetOpacity(1);
+}
+
+fun display_password_callback(text, count) {
+	global.status = "password";
+	if (text == "") text = "Password:";
+	show_centered(prompt.sprite, Image.Text(text, 0.874, 0.933, 0.949, 1, "Sans 12"), track.y + 30);
+	stars = "";
+	for (i = 0; i < count; i++) stars += "*";
+	if (stars == "") stars = " ";
+	show_centered(bullets.sprite, Image.Text(stars, 0.298, 0.882, 0.941, 1, "Sans 14"), track.y + 60);
+}
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+
+fun display_question_callback(text, entry) {
+	global.status = "question";
+	show_centered(prompt.sprite, Image.Text(text, 0.874, 0.933, 0.949, 1, "Sans 12"), track.y + 30);
+	if (entry == "") entry = " ";
+	show_centered(bullets.sprite, Image.Text(entry, 0.298, 0.882, 0.941, 1, "Sans 14"), track.y + 60);
+}
+Plymouth.SetDisplayQuestionFunction(display_question_callback);
+
+fun display_normal_callback() {
+	global.status = "normal";
+	prompt.sprite.SetOpacity(0);
+	bullets.sprite.SetOpacity(0);
+}
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
+
+# ---- boot messages (e.g. disk checks) ----
+message.sprite = Sprite();
+fun message_callback(text) {
+	image = Image.Text(text, 0.498, 0.714, 0.753, 1, "Sans 10");
+	message.sprite.SetImage(image);
+	message.sprite.SetPosition(CX - image.GetWidth() / 2, Window.GetY() + Window.GetHeight() - 40, 20);
+}
+Plymouth.SetMessageFunction(message_callback);
+
+fun quit_callback() {
+	logo.sprite.SetOpacity(1);
+}
+Plymouth.SetQuitFunction(quit_callback);

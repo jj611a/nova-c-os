@@ -17,3 +17,14 @@ render() {   # render TEMPLATE WIDTH HEIGHT OUT
 render wallpaper.svg.in 1920 1080 "$STAGE/usr/share/wallpapers/NovaC/contents/images/1920x1080.png"
 # launcher/menu icon ("novac-logo")
 render icon.svg.in 128 128 "$STAGE/usr/share/icons/hicolor/128x128/apps/novac-logo.png"
+# login splash (Plasma) and boot splash (Plymouth) logo
+render icon.svg.in 512 512 "$STAGE/usr/share/plasma/look-and-feel/org.novac.desktop/contents/splash/images/logo.png"
+P="$STAGE/usr/share/plymouth/themes/novac"
+render icon.svg.in 180 180 "$P/logo.png"
+# boot splash progress bar: dim track and cyan fill (Plymouth scripts can only draw images)
+bar() {   # bar COLOR OUT
+	printf '<svg xmlns="http://www.w3.org/2000/svg" width="260" height="4"><rect width="260" height="4" rx="2" fill="%s"/></svg>' "$1" > "$STAGE.bar.svg"
+	rsvg-convert "$STAGE.bar.svg" -o "$2"; rm -f "$STAGE.bar.svg"
+}
+bar '#1b2f3f' "$P/bar-track.png"
+bar '#4ce1f0' "$P/bar-fill.png"

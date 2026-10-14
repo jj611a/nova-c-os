@@ -1,0 +1,13 @@
+#!/bin/sh
+# live-config (live session only): no automatic screen lock for the live user. The password is public
+# anyway, and a lock screen half way through an installation is confusing. Installed systems keep locking.
+U="${LIVE_USERNAME:-user}"
+H="/home/$U"
+[ -d "$H" ] || exit 0
+mkdir -p "$H/.config"
+cat > "$H/.config/kscreenlockerrc" <<'EOF'
+[Daemon]
+Autolock=false
+LockOnResume=false
+EOF
+chown -R "$U:$U" "$H/.config"

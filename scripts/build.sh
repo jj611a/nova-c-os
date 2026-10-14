@@ -23,7 +23,7 @@ if [ "${RESUME:-0}" != 1 ]; then
 		"$SRC/auto" "$SRC/config" "$WORK/"
 	# files from /mnt/c arrive as 0755: normalise overlay files, keep scripts executable
 	find "$WORK/config/includes.chroot" -type f -exec chmod 644 {} +
-	chmod +x "$WORK"/auto/* "$WORK"/config/hooks/normal/*.chroot 2>/dev/null || true
+	chmod +x "$WORK"/auto/* "$WORK"/config/hooks/normal/*.chroot "$WORK"/config/includes.chroot/usr/lib/live/config/* 2>/dev/null || true
 
 	# boot splash: embed the logo into the SVG template (live-build renders it to splash.png)
 	mkdir -p "$WORK/config/bootloaders"

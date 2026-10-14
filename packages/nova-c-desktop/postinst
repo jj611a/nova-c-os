@@ -14,6 +14,16 @@ if [ "$1" = configure ]; then
 		    $S/BreezeDark.colors > $S/NovaC.colors
 	fi
 
+	# Nova-C boot splash; rebuild the initramfs so the (possibly updated) theme is used at the next boot
+	if command -v plymouth-set-default-theme >/dev/null; then
+		plymouth-set-default-theme novac
+		command -v update-initramfs >/dev/null && update-initramfs -u || true
+	fi
+	# installed systems: boot with "splash" (/etc/default/grub.d/90-nova-c.cfg); the live ISO has its own menu
+	if [ -e /boot/grub/grub.cfg ] && command -v update-grub >/dev/null; then
+		update-grub || true
+	fi
+
 	# KDE's crash-report socket loops in the login screen's system-user session; keep it off
 	systemctl --global mask drkonqi-coredump-launcher.socket >/dev/null 2>&1 || true
 

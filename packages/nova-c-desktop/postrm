@@ -12,5 +12,10 @@ if [ "$1" = remove ] || [ "$1" = abort-install ] || [ "$1" = disappear ]; then
 	done
 	rm -f /usr/share/color-schemes/NovaC.colors
 	systemctl --global unmask drkonqi-coredump-launcher.socket >/dev/null 2>&1 || true
+	# back to Plymouth's default theme (ours is gone)
+	if command -v plymouth-set-default-theme >/dev/null; then
+		plymouth-set-default-theme --reset || true
+		command -v update-initramfs >/dev/null && update-initramfs -u || true
+	fi
 fi
 exit 0
