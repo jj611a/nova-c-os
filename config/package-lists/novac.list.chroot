@@ -120,6 +120,8 @@ systemd-sysv
 # keeps the clock right (Recommends of systemd, dropped with recommends off): with a wrong clock apt rejects every signature as
 # "not live yet", Debian's included
 systemd-timesyncd
+# hwclock moved here in Debian 13: without it the installer cannot save the time to the hardware clock
+util-linux-extra
 zstd
 network-manager
 pipewire
