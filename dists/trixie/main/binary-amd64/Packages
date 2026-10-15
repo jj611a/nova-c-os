@@ -16,24 +16,24 @@ Description: Nova-C OS update repository: signing key and APT source
 Installed-Size: 8
 
 Package: nova-c-desktop
-Version: 0.1.3
+Version: 0.2.0
 Architecture: all
 Maintainer: Nova-C OS <novacore.iq@gmail.com>
-Depends: nova-c-archive-keyring, nova-c-driver-manager, unattended-upgrades, plasma-workspace, kwin-wayland, sddm, breeze, plymouth, plymouth-label, initramfs-tools, papirus-icon-theme, fonts-noto-core, fonts-firacode, fastfetch, zram-tools, earlyoom
+Depends: nova-c-archive-keyring, nova-c-driver-manager, unattended-upgrades, plasma-workspace, kwin-wayland, sddm, breeze, plymouth, plymouth-label, initramfs-tools, papirus-icon-theme, fonts-noto-core, fonts-inter, fonts-firacode, fastfetch, zram-tools, earlyoom
 Priority: optional
 Section: misc
-Filename: pool/main/n/nova-c-desktop/nova-c-desktop_0.1.3_all.deb
-Size: 605136
-SHA256: 4156f319ef37ef7d84e03028ac10301f16ec619bcdc1b2ffe7e6aa2fa2cec460
-SHA1: 050c0a9a4ac0de35616e5c7cfa3eff7cbf147db8
-MD5sum: 528de51096689efb102352d183fba115
+Filename: pool/main/n/nova-c-desktop/nova-c-desktop_0.2.0_all.deb
+Size: 5914904
+SHA256: a3d145410acf2e1380c0a00b1b7b54005de440d00e1cc3b1d6ae6d05cb8b990e
+SHA1: 46a5c508768b349dd1381c5affe2e93d02a45efb
+MD5sum: 51034884976d4adca429f1fa4c86fc7a
 Description: Nova-C OS desktop defaults, branding and tuning
- The Nova-C look (dark slate + cyan Plasma theme, top bar + dock layout, wallpaper,
- login screen), OS identity (os-release), memory tuning (zram-friendly sysctl,
+ The Nova-C look (dark slate + cyan Plasma theme, Inter font, top bar + dock layout, wallpapers,
+ login screen, boot menu and splash), OS identity (os-release), memory tuning (zram-friendly sysctl,
  fewer autostarted services, no blur effects, file indexer off) and automatic
  background updates from Debian security and the Nova-C OS repository.
  Updating this package updates every installed Nova-C OS system.
-Installed-Size: 688
+Installed-Size: 6008
 
 Package: nova-c-driver-manager
 Version: 0.1.0
@@ -53,4 +53,22 @@ Description: Nova-C OS hardware driver finder
  once the computer is online asks the user whether to download and install them.
  Also available from the menu as "Hardware Drivers".
 Installed-Size: 44
+
+Package: nova-c-touch
+Version: 0.1.0
+Architecture: all
+Maintainer: Nova-C OS <novacore.iq@gmail.com>
+Depends: nova-c-desktop (>= 0.2.0), maliit-keyboard, iio-sensor-proxy
+Priority: optional
+Section: misc
+Filename: pool/main/n/nova-c-touch/nova-c-touch_0.1.0_all.deb
+Size: 932
+SHA256: cf0fba4633383c74eb0579610699eef355f9cfb9944dee9002fd56ca8a001c0f
+SHA1: 5f7caa7eb25204c842100024534da88770208529
+MD5sum: f6169c9d85198fb83dfcb1041474bb83
+Description: Touchscreen support for Nova-C OS (on-screen keyboard)
+ Nova-C OS is built for laptops with a real keyboard, so the default image leaves out the on-screen keyboard (it
+ pulls in about 200 MB of input-method data). Install this package on a touchscreen laptop or 2-in-1 to get it,
+ plus screen auto-rotation:  sudo apt install nova-c-touch
+Installed-Size: 0
 
