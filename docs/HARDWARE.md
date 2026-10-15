@@ -86,3 +86,22 @@ from the system image: the screen stays on the firmware framebuffer until then, 
 Intel laptops, including the Akoya models above, keep the early, flicker-free path. If an AMD or NVIDIA laptop shows
 a black screen where it used to show the splash, or boots to a text console, please report it with
 `sudo dmesg | grep -iE 'amdgpu|nouveau|drm'`.
+
+## Fingerprint readers (0.2.1)
+
+`fprintd` and its PAM module are part of the system, and Nova-C switches the PAM profile on (Debian ships it off). Nothing
+changes until a finger is enrolled, so laptops without a reader are not affected.
+
+- **Enrol:** System Settings > Users > *Configure Fingerprint Authentication*, or `fprintd-enroll` in a terminal.
+- **Used for:** the lock screen, the login screen, `sudo`, `pkexec` and the administrator pop-ups. Touch the sensor, or wait
+  about 10 seconds and type the password as usual.
+- **After a fingerprint login** KDE Wallet stays locked (it needs the password), so an app that stores secrets there (for
+  example saved Wi-Fi passwords in the network applet) may ask for the wallet password once. Log in with the password
+  if that bothers you.
+- **Supported readers:** the ones Debian's `libfprint` 1.94 drives (most Validity, Elan, Synaptics, AuthenTec and many Goodix
+  sensors). Some readers need a proprietary driver that Debian does not package; `fprintd-list $USER` says
+  "No devices available" for those.
+- **Turn it off:** `sudo pam-auth-update` and untick *Fingerprint authentication*. An update will not switch it back on.
+- Not tested on real hardware (VirtualBox cannot pass a reader through): please report what works, with the output of
+  `lsusb` and `fprintd-list $USER`.
+

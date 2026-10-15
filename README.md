@@ -28,6 +28,7 @@ Dark slate and cyan, a clean dock, a boot that gets out of your way, real driver
 | 💻 **Laptop first** | Built for mouse, touchpad and keyboard; touchscreens and 2-in-1s work too (on-screen keyboard, auto-rotation) |
 | 🎨 **Its own look** | Nova-C boot splash, login screen, login splash, wallpaper and colour scheme: no stock Debian or KDE branding in sight |
 | 🔄 **Self-updating** | Every installed system pulls Nova-C updates from this repository and Debian security fixes, automatically, once a day |
+| 🖐 **Fingerprint unlock** | If the laptop has a fingerprint reader, enrol a finger in System Settings > Users and use it on the lock screen, login screen, `sudo` and administrator prompts (password still works) |
 | 🧰 **Hardware Drivers** | Detects hardware that needs extra drivers (NVIDIA, Broadcom Wi-Fi, missing firmware…) and offers to install them once you're online |
 | 💾 **Easy install** | Graphical installer: erase disk or partition by hand (for dual boot), optional disk encryption, UEFI with Secure Boot |
 | ⚡ **Quick to start** | Half-size boot files, no slow first-boot jobs, a calm splash that does not eat CPU: about 25% less time to a desktop than 0.1.3 in the test VM ([numbers](#-lighter-and-faster-in-02)) |

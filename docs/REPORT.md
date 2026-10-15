@@ -1,5 +1,16 @@
 # Nova-C OS: status and test report
 
+## 0.2.1: artwork wallpapers and fingerprint unlock
+
+| # | Check | Result | Evidence |
+|---|---|---|---|
+| 1 | Five artwork pictures are selectable wallpapers; the circuit logo is the default on the desktop and the login screen | PASS | ![](screenshots/02-desktop.png) ![](screenshots/08-login-screen.png) |
+| 2 | `fprintd`, `libpam-fprintd` installed; `pam_fprintd` is first in `common-auth` (switched on once, state in `/var/lib/nova-c/fprintd-enabled`); simulated enable on a copy of the image, second configure changes nothing | PASS | |
+| 3 | A laptop without an enrolled finger still logs in with the password (no reader in the VM: the module is skipped) | PASS | ![](screenshots/09-after-password-login.png) |
+| 4 | Enrolling and unlocking with a real fingerprint reader | **NOT TESTED** (VirtualBox cannot pass a reader through) | see [docs/HARDWARE.md](HARDWARE.md#fingerprint-readers-021) |
+
+New ISO: `novac.iso`, 1,480,048,640 bytes, sha256 `8f1083ad6f68724849474efdd4c16e31315b47259e4b1cbf6cb86ca3945dff68`. The Craft ISO was not rebuilt for 0.2.1.
+
 ## 0.2.0: lighter, faster to start, nicer to look at
 
 Tested on 15 Oct 2026 in VirtualBox 7.2 (Windows 10 host, Ryzen 5 5500), laptop-style VM: 2 vCPU, 2 GB RAM, 1280x800, no 3D (software

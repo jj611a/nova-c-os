@@ -30,6 +30,17 @@ if [ "$1" = configure ]; then
 		update-grub || true
 	fi
 
+	# Fingerprint reader: Debian's libpam-fprintd ships its PAM profile switched off. Switch it on once, so a laptop that
+	# has a reader can use it for the lock screen, the login screen, sudo and administrator prompts after the user has
+	# enrolled a finger (System Settings > Users). Without a reader, or without an enrolled finger, the module is
+	# skipped at once and the password works as before. Done once only: a user who later turns it off with
+	# pam-auth-update keeps it off.
+	if command -v pam-auth-update >/dev/null && [ ! -e /var/lib/nova-c/fprintd-enabled ]; then
+		if DEBIAN_FRONTEND=noninteractive pam-auth-update --package --enable fprintd >/dev/null 2>&1; then
+			mkdir -p /var/lib/nova-c && touch /var/lib/nova-c/fprintd-enabled
+		fi
+	fi
+
 	# KDE's crash-report socket loops in the login screen's system-user session; keep it off
 	systemctl --global mask drkonqi-coredump-launcher.socket >/dev/null 2>&1 || true
 	# Plasma 6 starts these as systemd user services at every login: the accessibility daemon, and the X11 tray and

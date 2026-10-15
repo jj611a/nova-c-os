@@ -45,6 +45,9 @@ firefox-esr
 fastfetch
 
 # ---- laptop hardware ----
+# fingerprint readers (enabled for login, lock screen and sudo by nova-c-desktop once a finger is enrolled)
+fprintd
+libpam-fprintd
 # (the on-screen keyboard is not in the default image: it pulled in about 200 MB of Qt 5 and input-method data
 # that a laptop with a real keyboard never uses. Touchscreen machines: sudo apt install nova-c-touch)
 iio-sensor-proxy
