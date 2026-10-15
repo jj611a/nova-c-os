@@ -5,26 +5,26 @@ Origin: NovaC
 Label: Nova-C OS
 Suite: stable
 Codename: trixie
-Date: Thu, 15 Oct 2026 08:53:49 UTC
+Date: Thu, 15 Oct 2026 16:37:48 UTC
 Architectures: amd64
 Components: main
 Description: Nova-C OS updates (https://github.com/jj611a/nova-c-os)
 MD5Sum:
- dab6d40cd1a8d8546f1ea57fa3433b18 3471 main/binary-amd64/Packages
- 63ca79c374d352118fef79132b352455 1689 main/binary-amd64/Packages.gz
+ 9d26d52c78871274719e144f1fc286e0 3556 main/binary-amd64/Packages
+ 7a46ae2f5f97c4e4970333082d8c2ac4 1729 main/binary-amd64/Packages.gz
  adb3a09b97337336119990f0e9e9ef9e 152 main/binary-amd64/Release
 SHA1:
- 5059c4b8da53b008511db3ac77bcea27a82da46c 3471 main/binary-amd64/Packages
- 74404e51b42fc2df31bf6ddd3284f98324693c3d 1689 main/binary-amd64/Packages.gz
+ b8303b7669b71009a475a290a93105757d058c50 3556 main/binary-amd64/Packages
+ f1362c8cce3e759d2449c4cf3ae2c649851cd8c1 1729 main/binary-amd64/Packages.gz
  24bdd05fe39299e3f726f109a153ef9968bf06b0 152 main/binary-amd64/Release
 SHA256:
- 940e58b1ef58f6200be96bd682b8ad7963dbfb82c96c4f032724265b47a4d617 3471 main/binary-amd64/Packages
- 1321150c282a6fb6885f5cf60da73a1a85dae7dd445e7f2fde6d81cfeca3a104 1689 main/binary-amd64/Packages.gz
+ 242a3031fc1be8f9129f2bb8b8c2e29b13c815ee0d7192968c60ca5135719d1c 3556 main/binary-amd64/Packages
+ 9a907444a1ecb97985c53d26e7ed03e95ef35866342239c45d7b93132e882d3f 1729 main/binary-amd64/Packages.gz
  83de39cfc74e3503737b9f8325641fbe2f455053f06c3d0d4ee6ef8a36cbcddf 152 main/binary-amd64/Release
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQTc4aXrlM8RZi0VmoGH0WcKCccEwQUCatCUnQAKCRCH0WcKCccE
-wTVEAP0TknzN2Duf+KtLuFewZfdG52uBa+jIdjv8A/bPQ1cY+gD+NVuCxnRNwUGg
-hvquSgRFvHpgbLcUsIIEQ2QLHs9q3A8=
-=ArCP
+iHUEARYKAB0WIQTc4aXrlM8RZi0VmoGH0WcKCccEwQUCatEBXAAKCRCH0WcKCccE
+wdCVAQCkHTi8b2DuF413SEhyouPD95cdP2tSDOtF1f+m+3tLmQD/TQhO0WI0LWYW
+jE9CUByuaEXNRPCTWJqw9ly+/e1JqAI=
+=KegK
 -----END PGP SIGNATURE-----
