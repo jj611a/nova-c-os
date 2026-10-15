@@ -57,7 +57,7 @@ Where the time went, and what was done:
 - **The boot splash redraws a third as often** (it measurably slowed the boot on a slow screen) and eases its progress bar instead of jumping.
 - **A smaller image:** docs, man pages, Plasma's stock wallpapers and translations for languages outside a list of 23 (Arabic, Kurdish and others) are not unpacked (and stay out on updates; see `/etc/dpkg/dpkg.cfg.d/90-nova-c-lean` to switch that off), the on-screen keyboard (about 200 MB, only useful on a touchscreen) is the opt-in package `nova-c-touch`, and the installer removes itself from the installed system.
 
-What it looks like now: a GRUB menu at the screen's native resolution with the same typeface as the desktop (Inter), a calm boot splash, Papirus folders in the accent colour, three Nova-C wallpapers (Nova-C, Aurora, Graphite), a Nova-C terminal palette, window shadows that lift windows off the dark background, and a floating top bar to match the dock.
+What it looks like now: a GRUB menu at the screen's native resolution with the same typeface as the desktop (Inter), a calm boot splash, Papirus folders in the accent colour, eight wallpapers (the circuit logo, a crimson temple, ink mountains, a nebula city and a ronin under the moon, plus Nova-C, Aurora and Graphite; the circuit one is the default, change it in Settings > Wallpaper), a Nova-C terminal palette, window shadows that lift windows off the dark background, and a floating top bar to match the dock.
 
 Not measured: a real laptop (all numbers are from the VM, where software rendering dominates the last 20 seconds). The method and raw results are in [docs/REPORT.md](docs/REPORT.md).
 

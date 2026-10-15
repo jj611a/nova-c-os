@@ -23,7 +23,7 @@ if [ -f "$B" ]; then
 	# welcome picture and install slideshow: the Nova-C wallpaper instead of Debian's artwork
 	# (both are scaled to fit by Calamares; the wallpaper comes from nova-c-desktop)
 	D=$(dirname "$B")
-	W=/usr/share/wallpapers/NovaC/contents/images/1920x1080.png
+	W=/usr/share/wallpapers/NovaCCircuit/contents/images/1376x768.jpg
 	if [ -f "$W" ]; then
 		cp "$W" "$D/welcome.png"
 		cp "$W" "$D/slide1.png"

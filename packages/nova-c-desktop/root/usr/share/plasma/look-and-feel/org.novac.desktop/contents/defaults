@@ -11,7 +11,7 @@ Theme=Papirus-Dark
 name=default
 
 [Wallpaper]
-Image=NovaC
+Image=NovaCCircuit
 
 [kcminputrc][Mouse]
 cursorTheme=breeze_cursors

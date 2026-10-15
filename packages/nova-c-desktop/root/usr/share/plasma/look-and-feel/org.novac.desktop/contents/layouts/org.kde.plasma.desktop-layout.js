@@ -5,7 +5,7 @@ for (var j = 0; j < desktopsArray.length; j++) {
     var d = desktopsArray[j];
     d.wallpaperPlugin = 'org.kde.image';
     d.currentConfigGroup = ['Wallpaper', 'org.kde.image', 'General'];
-    d.writeConfig('Image', 'file:///usr/share/wallpapers/NovaC');
+    d.writeConfig('Image', 'file:///usr/share/wallpapers/NovaCCircuit');
 }
 
 // ---- top bar ----
