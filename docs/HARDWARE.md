@@ -65,7 +65,7 @@ What Nova-C does for them:
 | Sound | Intel SOF firmware `sof-apl` / `sof-glk` and the ALSA UCM profiles are in the image; HDA fallback otherwise |
 | Screen rotation | systemd's hwdb in Debian 13 has the accelerometer mount matrix for the Akoya E3216 MD60900, E3222 MD62450 and other Akoya E models (`KIOX010A`/`KIOX020A`); `iio-sensor-proxy` rotates the screen |
 | Touchscreen | I2C-HID multitouch (no device-specific firmware needed; these models are not in the kernel's Silead/Goodix quirk table) |
-| Tablet mode | Intel VBTN/HID switch; Plasma switches to touch mode and the on-screen keyboard (maliit) when folded |
+| Tablet mode | Intel VBTN/HID switch; Plasma switches to touch mode. The on-screen keyboard (maliit) is not in the default image since 0.2 (it is about 200 MB nobody with a keyboard needs): on these convertibles run `sudo apt install nova-c-touch` once, online |
 | Storage / boot | Installs to the eMMC (`/dev/mmcblk0`); 64-bit UEFI, Secure Boot works through Debian's signed shim |
 
 Known limits (from user reports, **not yet verified on a real device**):
@@ -77,3 +77,12 @@ Known limits (from user reports, **not yet verified on a real device**):
 
 Please report results (working or not) as a GitHub issue with the output of
 `sudo /usr/libexec/nova-c/driver-scan` and `inxi -Fxz` (if installed) or `lspci -nnk`.
+
+## Graphics drivers and the boot splash (0.2)
+
+To keep the boot files small (a USB stick has to be read in full before anything starts), the early boot image only
+carries the Intel graphics driver and the virtual GPUs. AMD, NVIDIA (nouveau) and legacy Radeon load a moment later,
+from the system image: the screen stays on the firmware framebuffer until then, then switches to the native mode.
+Intel laptops, including the Akoya models above, keep the early, flicker-free path. If an AMD or NVIDIA laptop shows
+a black screen where it used to show the splash, or boots to a text console, please report it with
+`sudo dmesg | grep -iE 'amdgpu|nouveau|drm'`.

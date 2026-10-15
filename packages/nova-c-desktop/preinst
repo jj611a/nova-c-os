@@ -6,14 +6,22 @@ divert() {   # divert FILE TARGET
 	dpkg-divert --package nova-c-desktop --add --rename --divert "$2" "$1" >/dev/null
 }
 
+A=/etc/xdg/autostart
+OFF=/usr/share/nova-c/disabled-autostart
+
 if [ "$1" = install ] || [ "$1" = upgrade ]; then
 	# our os-release replaces base-files' copy (base-files upgrades keep updating the .debian one)
 	divert /usr/lib/os-release /usr/lib/os-release.debian
-	# autostarted background programs Nova-C does not start by default (idle RAM):
-	#   Discover's tray update notifier (~150 MB; updates install automatically instead),
-	#   the accessibility daemon, and the X11 tray/menu proxies (which also start Xwayland)
+
+	# 0.1.x moved four autostart files aside next to themselves (*.desktop.nova-c-disabled). systemd's autostart
+	# generator still found and started them (the Discover notifier ran at ~135 MB). Undo that...
 	for f in org.kde.discover.notifier kaccess xembedsniproxy gmenudbusmenuproxy; do
-		divert /etc/xdg/autostart/$f.desktop /etc/xdg/autostart/$f.desktop.nova-c-disabled
+		dpkg-divert --package nova-c-desktop --remove --rename --divert "$A/$f.desktop.nova-c-disabled" "$A/$f.desktop" >/dev/null 2>&1 || true
 	done
+	# ...and put the one that is an autostart file out of the autostart directory altogether: Discover's tray update
+	# notifier (updates install automatically instead). The other three are systemd user services in Plasma 6;
+	# they are masked in postinst.
+	mkdir -p "$OFF"
+	divert "$A/org.kde.discover.notifier.desktop" "$OFF/org.kde.discover.notifier.desktop"
 fi
 exit 0

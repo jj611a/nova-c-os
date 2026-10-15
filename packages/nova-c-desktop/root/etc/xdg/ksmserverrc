@@ -1,0 +1,4 @@
+[General]
+# every login starts with a clean desktop instead of re-opening the last session's windows: faster start and
+# no surprises after a crash or a long-gone app
+loginMode=emptySession

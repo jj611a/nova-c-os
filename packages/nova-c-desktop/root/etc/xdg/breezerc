@@ -1,0 +1,5 @@
+[Common]
+# windows stand out from the dark wallpaper: large soft shadow and a thin outline
+ShadowSize=ShadowLarge
+ShadowStrength=255
+OutlineIntensity=OutlineMedium

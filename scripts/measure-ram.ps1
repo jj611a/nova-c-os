@@ -17,7 +17,7 @@ function Keys($codes) { & $vbm controlvm $vm keyboardputscancode @($codes -split
 $ErrorActionPreference = "Continue"   # VBoxManage progress goes to stderr
 $null = & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "test-vbox.ps1") -Iso $Iso -Name $vm -Headless 2>&1
 $ErrorActionPreference = "Stop"
-Start-Sleep 11; Keys "1c 9c"                      # boot the default entry
+Start-Sleep 6; Keys "1c 9c"                      # boot the default entry
 Start-Sleep $IdleSeconds                          # let the session settle (autostart, indexers, notifiers)
 Keys "1d 38 14 94 b8 9d"; Start-Sleep 10          # Ctrl+Alt+T
 VmType $vm "sudo -i" -Enter; Start-Sleep 3

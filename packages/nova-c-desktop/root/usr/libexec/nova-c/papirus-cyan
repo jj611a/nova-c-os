@@ -1,0 +1,15 @@
+#!/bin/sh
+# Nova-C OS: colour Papirus' folder icons cyan to match the desktop accent. Papirus ships every folder colour and a
+# default (blue) that its generic names (folder.svg, folder-documents.svg, user-home.svg, ...) point at; this re-points those links
+# at the cyan files, like Papirus' own "papirus-folders" tool does. Safe to run again: dpkg triggers it when the
+# Papirus package changes, because an update puts the blue links back.
+for theme in Papirus Papirus-Dark; do
+	base=/usr/share/icons/$theme
+	[ -d "$base" ] || continue
+	find "$base" -path '*/places/*' -type l \( -lname 'folder-blue.svg' -o -lname 'folder-blue-*.svg' -o -lname 'user-blue.svg' -o -lname 'user-blue-*.svg' \) -printf '%p %l\n' |
+	while read -r link target; do
+		cyan="$(printf '%s' "$target" | sed 's/-blue/-cyan/')"
+		[ -e "$(dirname "$link")/$cyan" ] && ln -sfn "$cyan" "$link"
+	done
+done
+exit 0

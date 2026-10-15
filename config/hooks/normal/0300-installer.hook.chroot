@@ -48,3 +48,11 @@ done
 # (offered by Hardware Drivers). Our own update source (sources.list.d/nova-c.sources) is kept as is.
 S=/usr/share/calamares/helpers/calamares-sources-final
 [ -f "$S" ] && sed -i 's/ main non-free-firmware$/ main contrib non-free non-free-firmware/' "$S"
+
+# The installed system does not need the installer: remove it from the target too (Debian's settings already remove
+# live-boot, live-config and calamares-settings-debian). Otherwise "Install Nova-C OS" stays in the menu of a
+# machine that is already installed.
+P=/etc/calamares/modules/packages.conf
+if [ -f "$P" ] && ! grep -q "^ *- 'calamares'$" "$P"; then
+	sed -i "s/^\( *\)- 'calamares-settings-debian'/&\n\1- 'calamares'/" "$P"
+fi

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Nova-C OS boot-menu background (1920x1080, 16:9). build.sh and the nova-c-desktop prebuild fill @LOGO_B64@ and
+     render it with rsvg-convert. The menu itself is drawn by GRUB on top, from about 50% height at the left. -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050a12"/>
+      <stop offset="0.6" stop-color="#091523"/>
+      <stop offset="1" stop-color="#0c2233"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.76" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#1a8fa8" stop-opacity="0.50"/>
+      <stop offset="0.5" stop-color="#0e4f63" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#050a12" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vignette" cx="0.5" cy="0.5" r="0.75">
+      <stop offset="0.6" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.45"/>
+    </radialGradient>
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="14"/></filter>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#base)"/>
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+  <image x="1030" y="130" width="800" height="786" opacity="0.26" filter="url(#soft)" xlink:href="data:image/png;base64,@LOGO_B64@"/>
+  <image x="1030" y="130" width="800" height="786" opacity="0.32" xlink:href="data:image/png;base64,@LOGO_B64@"/>
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+
+  <image x="230" y="150" width="128" height="126" xlink:href="data:image/png;base64,@LOGO_B64@"/>
+  <g font-family="Inter, DejaVu Sans" fill="#e8fcff">
+    <text x="394" y="232" font-size="76" font-weight="600" fill="#9ff4ff" letter-spacing="-1">Nova-C OS</text>
+    <text x="398" y="276" font-size="26" fill="#9fc3cc">Fast, light and good-looking, built on Debian</text>
+  </g>
+  <rect x="398" y="312" width="72" height="4" rx="2" fill="#4ce1f0"/>
+</svg>

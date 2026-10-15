@@ -1,7 +1,16 @@
 [General]
 AccentColor=76,225,240
-fixed=Fira Code,10,-1,5,50,0,0,0,0,0
+font=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+menuFont=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+smallestReadableFont=Inter,8,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+toolBarFont=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+fixed=Fira Code,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+
+[WM]
+activeFont=Inter,10,-1,5,600,0,0,0,0,0,0,0,0,0,0,1
 
 [KDE]
 LookAndFeelPackage=org.novac.desktop
 SingleClick=false
+# a little snappier than the 1.0 default: windows and menus feel quicker without looking abrupt
+AnimationDurationFactor=0.75

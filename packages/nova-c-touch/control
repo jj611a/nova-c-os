@@ -1,0 +1,11 @@
+Package: nova-c-touch
+Version: 0.1.0
+Architecture: all
+Maintainer: Nova-C OS <novacore.iq@gmail.com>
+Section: misc
+Priority: optional
+Depends: nova-c-desktop (>= 0.2.0), maliit-keyboard, iio-sensor-proxy
+Description: Touchscreen support for Nova-C OS (on-screen keyboard)
+ Nova-C OS is built for laptops with a real keyboard, so the default image leaves out the on-screen keyboard (it
+ pulls in about 200 MB of input-method data). Install this package on a touchscreen laptop or 2-in-1 to get it,
+ plus screen auto-rotation:  sudo apt install nova-c-touch

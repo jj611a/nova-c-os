@@ -1,51 +1,42 @@
+# Nova-C OS live boot menu (GRUB theme). The picture is rendered from branding/grub-bg.svg.in by build.sh.
 desktop-image: "../splash.png"
-title-color: "#9ff4ff"
-title-font: "Unifont Regular 16"
+desktop-image-scale-method: "crop"
+desktop-color: "#04070d"
 title-text: ""
-message-font: "Unifont Regular 16"
+title-color: "#9ff4ff"
+message-font: "Inter Regular 20"
+message-color: "#cfeef3"
+message-bg-color: "#0c2233"
 terminal-font: "Unifont Regular 16"
 
-#help bar at the bottom
+# key help at the bottom
 + label {
-        top = 100%-50
-        left = 0
-        width = 100%
-        height = 20
-        text = "@KEYMAP_SHORT@"
-        align = "center"
-        color = "#7fb6c0"
-	font = "Unifont Regular 16"
+	top = 100%-64
+	left = 0
+	width = 100%
+	height = 24
+	text = "@KEYMAP_SHORT@"
+	align = "center"
+	color = "#5f8a96"
+	font = "Inter Regular 20"
 }
 
-#boot menu
+# boot menu
 + boot_menu {
-        left = 10%
-        width = 80%
-        top = 52%
-        height = 48%-80
-        item_color = "#7fb6c0"
-	item_font = "Unifont Regular 16"
-        selected_item_color= "#9ff4ff"
-	selected_item_font = "Unifont Regular 16"
-        item_height = 16
-        item_padding = 0
-        item_spacing = 4
+	left = 12%
+	width = 42%
+	top = 50%
+	height = 38%
+	item_font = "Inter Regular 24"
+	item_color = "#9fc3cc"
+	selected_item_font = "Inter SemiBold Regular 24"
+	selected_item_color = "#ffffff"
+	selected_item_pixmap_style = "select_*.png"
+	item_height = 46
+	item_padding = 16
+	item_spacing = 6
 	icon_width = 0
-	icon_heigh = 0
+	icon_height = 0
 	item_icon_space = 0
-}
-
-#progress bar
-+ progress_bar {
-        id = "__timeout__"
-        left = 15%
-        top = 100%-80
-        height = 16
-        width = 70%
-        font = "Unifont Regular 16"
-        text_color = "#04070d"
-        fg_color = "#9ff4ff"
-        bg_color = "#1b2f3f"
-        border_color = "#9ff4ff"
-        text = "@TIMEOUT_NOTIFICATION_LONG@"
+	scrollbar = false
 }

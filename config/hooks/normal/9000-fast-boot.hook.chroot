@@ -1,0 +1,21 @@
+#!/bin/sh
+# Boot speed. Runs last, when every package is installed and configured.
+#
+# systemd re-runs its "first boot after an update" jobs (ldconfig, hwdb, journal catalog) at every boot when /usr
+# looks newer than the stamps /etc/.updated and /var/.updated. On the live medium that cost about 7 seconds
+# (ldconfig alone 6.3 s, on the critical path), every single boot. The caches are built right here, so say so.
+set -e
+
+ldconfig
+command -v systemd-hwdb >/dev/null && systemd-hwdb update || true
+command -v fc-cache >/dev/null && fc-cache -s || true
+touch /etc/.updated /var/.updated
+
+# live-config would generate the live session's locale (about 1-2 s) and re-run dpkg-reconfigure for the time zone
+# (about 1 s) on every boot. Generate the locale now so its "locale-gen --keep-existing" has nothing left to do, and
+# leave the time zone hook out (auto/config: nocomponents=tzdata); the image is UTC like Debian's default.
+if [ -e /etc/locale.gen ]; then
+	sed -i 's/^# *\(en_US\.UTF-8 UTF-8\)/\1/' /etc/locale.gen
+	locale-gen >/dev/null 2>&1 || true
+	echo 'LANG=en_US.UTF-8' > /etc/default/locale
+fi

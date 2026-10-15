@@ -8,6 +8,7 @@ param(
     [string]$Name = "NovaC-test",
     [int]$MemMB   = 2048,
     [int]$Cpus    = 2,
+    [int]$SataPorts = 2,   # VirtualBox defaults to 30: the kernel then probes 28 empty links, about 15 s of boot time
     [switch]$Accel3d,  # test the GPU (GLES) path; default off exercises the software-renderer fallback
     [switch]$Touch,
     [switch]$Headless
@@ -32,7 +33,9 @@ $mouse = if ($Touch) { "usbmultitouch" } else { "usbtablet" }
 & $vbm modifyvm $Name --memory $MemMB --cpus $Cpus --vram 128 --graphicscontroller vmsvga --accelerate-3d $accel `
     --firmware efi64 --usbxhci on --mouse $mouse --keyboard usb --audio-driver default `
     --nic1 nat --clipboard-mode bidirectional --uart1 0x3F8 4 --uart-mode1 file $serial
-& $vbm storagectl $Name --name SATA --add sata --controller IntelAhci
+# firmware (and so GRUB's gfxmode=auto) starts at a laptop-sized 1280x800: the same for every ISO, so boot times compare
+& $vbm setextradata $Name "VBoxInternal2/EfiGraphicsResolution" "1280x800"
+& $vbm storagectl $Name --name SATA --add sata --controller IntelAhci --portcount $SataPorts
 & $vbm createmedium disk --filename "$vmDir\disk.vdi" --size 16384
 & $vbm storageattach $Name --storagectl SATA --port 0 --device 0 --type hdd --medium "$vmDir\disk.vdi"
 & $vbm storageattach $Name --storagectl SATA --port 1 --device 0 --type dvddrive --medium $Iso

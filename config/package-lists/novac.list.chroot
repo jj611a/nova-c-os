@@ -19,7 +19,6 @@ xdg-desktop-portal-kde
 xdg-desktop-portal-gtk
 polkit-kde-agent-1
 kde-cli-tools
-kwayland-integration
 qt6-wayland
 systemsettings
 udisks2
@@ -34,6 +33,8 @@ breeze-gtk-theme
 kde-config-gtk-style
 papirus-icon-theme
 fonts-noto-core
+fonts-noto-color-emoji
+fonts-inter
 fonts-firacode
 
 # ---- apps ----
@@ -43,8 +44,9 @@ kate
 firefox-esr
 fastfetch
 
-# ---- touch / laptop hardware ----
-maliit-keyboard
+# ---- laptop hardware ----
+# (the on-screen keyboard is not in the default image: it pulled in about 200 MB of Qt 5 and input-method data
+# that a laptop with a real keyboard never uses. Touchscreen machines: sudo apt install nova-c-touch)
 iio-sensor-proxy
 thermald
 pciutils
@@ -112,6 +114,7 @@ libgbm1
 
 # ---- base system ----
 systemd-sysv
+zstd
 network-manager
 pipewire
 pipewire-pulse
@@ -145,9 +148,6 @@ firmware-ti-connectivity
 firmware-ath9k-htc
 firmware-sof-signed
 firmware-cirrus
-firmware-zd1211
-firmware-carl9170
-firmware-bnx2
 bluez-firmware
 intel-microcode
 amd64-microcode

@@ -1,0 +1,35 @@
+{
+  "policies": {
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DontCheckDefaultBrowser": true,
+    "OverrideFirstRunPage": "",
+    "OverridePostUpdatePage": "",
+    "UserMessaging": {
+      "WhatsNew": false,
+      "ExtensionRecommendations": false,
+      "FeatureRecommendations": false,
+      "UrlbarInterventions": false,
+      "SkipOnboarding": true,
+      "MoreFromMozilla": false
+    },
+    "FirefoxHome": {
+      "Search": true,
+      "TopSites": true,
+      "SponsoredTopSites": false,
+      "Highlights": false,
+      "Pocket": false,
+      "SponsoredPocket": false,
+      "Snippets": false
+    },
+    "Preferences": {
+      "browser.aboutwelcome.enabled": { "Value": false, "Status": "default" },
+      "browser.shell.checkDefaultBrowser": { "Value": false, "Status": "default" },
+      "browser.tabs.warnOnClose": { "Value": false, "Status": "default" },
+      "media.ffmpeg.vaapi.enabled": { "Value": true, "Status": "default" },
+      "browser.compactmode.show": { "Value": true, "Status": "default" },
+      "browser.uidensity": { "Value": 1, "Status": "default" }
+    }
+  }
+}

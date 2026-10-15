@@ -7,9 +7,9 @@ undivert() {   # undivert FILE TARGET
 
 if [ "$1" = remove ] || [ "$1" = abort-install ] || [ "$1" = disappear ]; then
 	undivert /usr/lib/os-release /usr/lib/os-release.debian
-	for f in org.kde.discover.notifier kaccess xembedsniproxy gmenudbusmenuproxy; do
-		undivert /etc/xdg/autostart/$f.desktop /etc/xdg/autostart/$f.desktop.nova-c-disabled
-	done
+	undivert /etc/xdg/autostart/org.kde.discover.notifier.desktop /usr/share/nova-c/disabled-autostart/org.kde.discover.notifier.desktop
+	rmdir /usr/share/nova-c/disabled-autostart /usr/share/nova-c 2>/dev/null || true
+	systemctl --global unmask plasma-kaccess.service plasma-xembedsniproxy.service plasma-gmenudbusmenuproxy.service >/dev/null 2>&1 || true
 	rm -f /usr/share/color-schemes/NovaC.colors
 	systemctl --global unmask drkonqi-coredump-launcher.socket >/dev/null 2>&1 || true
 	# back to Plymouth's default theme (ours is gone)

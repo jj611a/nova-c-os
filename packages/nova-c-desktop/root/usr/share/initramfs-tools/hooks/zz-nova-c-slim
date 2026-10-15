@@ -1,0 +1,38 @@
+#!/bin/sh
+# Nova-C OS: keep the initramfs small. initramfs-tools (MODULES=most) and Plymouth queue every graphics driver and
+# its firmware for the initramfs: about 150 MB of it is the AMD, NVIDIA (nouveau), legacy Radeon and Intel Xe
+# drivers, of which a given laptop needs at most one. On a USB stick the boot loader has to read all of it before
+# anything starts.
+# Taken off the queue here, those drivers load a moment later from the root file system (udev), as on any system
+# built with MODULES=dep, and the boot splash simply stays on the firmware framebuffer until then.
+# Intel graphics (the usual laptop GPU) and the virtual GPUs stay in the initramfs: early, flicker-free native
+# resolution where it matters most. Not applied when MODULES=dep: that initramfs only holds what this machine uses.
+# (The queue is applied after all hooks have run, so deleting files here would not stick: filter the queue.)
+PREREQ="plymouth kms"
+prereqs()
+{
+	echo "${PREREQ}"
+}
+case "${1}" in
+	prereqs)
+		prereqs
+		exit 0
+		;;
+esac
+
+[ "${MODULES}" = dep ] && exit 0
+[ -n "${__MODULES_TO_ADD}" ] && [ -f "${__MODULES_TO_ADD}" ] || exit 0
+
+drop="$(mktemp)" || exit 0
+for d in amd nouveau radeon xe; do
+	find "${MODULESDIR}/kernel/drivers/gpu/drm/$d" -name '*.ko*' 2>/dev/null
+done | while read -r f; do
+	f="${f##*/}"
+	echo "${f%%.ko*}"
+done > "$drop"
+
+# grep -v exits 1 when nothing is left; the queue is then simply empty
+grep -vxFf "$drop" "${__MODULES_TO_ADD}" > "${__MODULES_TO_ADD}.slim" || true
+cat "${__MODULES_TO_ADD}.slim" > "${__MODULES_TO_ADD}"
+rm -f "$drop" "${__MODULES_TO_ADD}.slim"
+exit 0

@@ -26,7 +26,7 @@ $ErrorActionPreference = "Continue"
 $null = & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "test-vbox.ps1") -Name $vm -Headless 2>&1
 $ErrorActionPreference = "Stop"
 if (-not (& $vbm list runningvms | Select-String "`"$vm`"")) { throw "VM $vm did not start" }
-Wait 11;  Shot "01-boot-menu"
+Wait 6;  Shot "01-boot-menu"        # the menu boots by itself after 5 s: press keys within ~3 s of it showing
 Keys "1c 9c";  Wait 100;  Shot "02-desktop"
 
 Keys "$META $METAUP";  Wait 6;  Shot "03-launcher-menu"
@@ -42,11 +42,12 @@ Shot "05-tiled-windows"
 
 Keys "38 0f 8f";  Wait 4;  Shot "06-alt-tab";  Keys "b8";  Wait 2
 Keys "$META 07 87 $METAUP";  Wait 14;  Shot "07-system-settings"   # Meta+6: System Settings
+Keys "$META 03 83 $METAUP";  Wait 35;  Shot "28-firefox-first-run"   # Meta+2: Firefox (no welcome tour, compact UI)
 }
 
 # ---- run 2: login screen (autologin off) -> password login ----
 & $vbm controlvm $vm reset | Out-Null
-Wait 11
+Wait 6
 Keys "12 92";  Wait 2                              # 'e' edit the boot entry
 Keys "e0 50 e0 d0 e0 50 e0 d0 e0 4f e0 cf"         # down, down, End
 VmType $vm " noautologin"

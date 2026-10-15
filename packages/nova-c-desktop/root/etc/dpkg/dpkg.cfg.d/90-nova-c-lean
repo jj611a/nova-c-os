@@ -1,0 +1,73 @@
+# Nova-C OS keeps the system lean: files nobody reads on a laptop are not unpacked when a package is installed
+# or upgraded (this is what keeps the image and the installed system a few hundred MB smaller).
+#
+#   * documentation and man pages (no man-db or help viewer is installed; copyright files stay)
+#   * translations for languages outside the list below
+#   * Plasma's stock wallpapers (Nova-C ships its own)
+#
+# Need another language? Delete this file, then:  sudo apt install --reinstall <package>   (or: sudo apt update
+# && sudo apt full-upgrade after removing it, which restores the translations of every package that changes).
+
+path-exclude=/usr/share/doc/*
+path-include=/usr/share/doc/*/copyright
+path-exclude=/usr/share/man/*
+path-exclude=/usr/share/info/*
+path-exclude=/usr/share/lintian/*
+path-exclude=/usr/share/bug/*
+path-exclude=/usr/share/gtk-doc/*
+path-exclude=/usr/share/help/*
+
+path-exclude=/usr/share/wallpapers/*
+path-include=/usr/share/wallpapers/NovaC*/*
+
+# translations kept: English, Arabic, Persian, Kurdish, Turkish, French, German, Spanish, Portuguese, Italian,
+# Russian, Ukrainian, Polish, Dutch, Czech, Indonesian, Hindi, Vietnamese, Chinese, Japanese, Korean, Greek, Hebrew
+path-exclude=/usr/share/locale/*
+path-include=/usr/share/locale/locale.alias
+path-include=/usr/share/locale/en/*
+path-include=/usr/share/locale/en_*/*
+path-include=/usr/share/locale/ar/*
+path-include=/usr/share/locale/ar_*/*
+path-include=/usr/share/locale/fa/*
+path-include=/usr/share/locale/fa_*/*
+path-include=/usr/share/locale/ckb/*
+path-include=/usr/share/locale/ku/*
+path-include=/usr/share/locale/ku_*/*
+path-include=/usr/share/locale/tr/*
+path-include=/usr/share/locale/tr_*/*
+path-include=/usr/share/locale/fr/*
+path-include=/usr/share/locale/fr_*/*
+path-include=/usr/share/locale/de/*
+path-include=/usr/share/locale/de_*/*
+path-include=/usr/share/locale/es/*
+path-include=/usr/share/locale/es_*/*
+path-include=/usr/share/locale/pt/*
+path-include=/usr/share/locale/pt_*/*
+path-include=/usr/share/locale/it/*
+path-include=/usr/share/locale/it_*/*
+path-include=/usr/share/locale/ru/*
+path-include=/usr/share/locale/ru_*/*
+path-include=/usr/share/locale/uk/*
+path-include=/usr/share/locale/uk_*/*
+path-include=/usr/share/locale/pl/*
+path-include=/usr/share/locale/pl_*/*
+path-include=/usr/share/locale/nl/*
+path-include=/usr/share/locale/nl_*/*
+path-include=/usr/share/locale/cs/*
+path-include=/usr/share/locale/cs_*/*
+path-include=/usr/share/locale/id/*
+path-include=/usr/share/locale/id_*/*
+path-include=/usr/share/locale/hi/*
+path-include=/usr/share/locale/hi_*/*
+path-include=/usr/share/locale/vi/*
+path-include=/usr/share/locale/vi_*/*
+path-include=/usr/share/locale/zh/*
+path-include=/usr/share/locale/zh_*/*
+path-include=/usr/share/locale/ja/*
+path-include=/usr/share/locale/ja_*/*
+path-include=/usr/share/locale/ko/*
+path-include=/usr/share/locale/ko_*/*
+path-include=/usr/share/locale/el/*
+path-include=/usr/share/locale/el_*/*
+path-include=/usr/share/locale/he/*
+path-include=/usr/share/locale/he_*/*

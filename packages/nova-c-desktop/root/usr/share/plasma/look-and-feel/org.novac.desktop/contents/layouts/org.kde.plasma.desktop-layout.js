@@ -1,4 +1,4 @@
-// Nova-C OS default layout: thin top bar (launcher, clock, tray) + floating icon dock at the bottom.
+// Nova-C OS default layout: slim floating top bar (launcher, clock, tray) + floating icon dock at the bottom.
 
 var desktopsArray = desktopsForActivity(currentActivity());
 for (var j = 0; j < desktopsArray.length; j++) {
@@ -11,8 +11,8 @@ for (var j = 0; j < desktopsArray.length; j++) {
 // ---- top bar ----
 var top = new Panel;
 top.location = 'top';
-top.height = 30;
-top.floating = false;
+top.height = 34;
+top.floating = true;     // floats like the dock; Plasma docks it to the screen edge when a window is maximized
 
 var launcher = top.addWidget('org.kde.plasma.kickoff');
 launcher.currentConfigGroup = ['General'];
@@ -26,7 +26,7 @@ top.addWidget('org.kde.plasma.systemtray');
 // ---- bottom dock ----
 var dock = new Panel;
 dock.location = 'bottom';
-dock.height = 56;
+dock.height = 60;
 dock.floating = true;
 dock.alignment = 'center';
 dock.lengthMode = 'fit';

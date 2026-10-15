@@ -31,6 +31,18 @@ if [ "${RESUME:-0}" != 1 ]; then
 	LOGO_B64="$(base64 -w0 "$SRC/assets/logo.png")"
 	TEMPLATE="$(< "$SRC/branding/splash.svg.in")"
 	printf '%s\n' "${TEMPLATE//@LOGO_B64@/$LOGO_B64}" > "$WORK/config/bootloaders/splash.svg"
+	# GRUB menu picture at 16:9 (live-build itself only renders the 4:3 splash above, which is what syslinux/BIOS uses);
+	# a splash.png already in config/bootloaders/grub-pc is used as is
+	TEMPLATE="$(< "$SRC/branding/grub-bg.svg.in")"
+	printf '%s\n' "${TEMPLATE//@LOGO_B64@/$LOGO_B64}" > "$WORK/grub-bg.svg"
+	rsvg-convert -w 1920 -h 1080 "$WORK/grub-bg.svg" -o "$WORK/config/bootloaders/grub-pc/splash.png"
+	rm -f "$WORK/grub-bg.svg"
+
+	# lean image: the dpkg rules that skip docs, man pages, stock wallpapers and most translations are applied
+	# before any package is unpacked (the same file is shipped by nova-c-desktop so updates keep honouring it)
+	mkdir -p "$WORK/config/includes.chroot_before_packages/etc/dpkg/dpkg.cfg.d"
+	cp "$SRC/packages/nova-c-desktop/root/etc/dpkg/dpkg.cfg.d/90-nova-c-lean" \
+		"$WORK/config/includes.chroot_before_packages/etc/dpkg/dpkg.cfg.d/"
 
 	# Nova-C's own packages: look, tuning, update source (the same .debs publish-updates.sh publishes)
 	bash "$SRC/scripts/build-packages.sh"
@@ -44,6 +56,8 @@ if [ "${RESUME:-0}" != 1 ]; then
 			echo "$f is already published with different content: bump Version in packages/${f%%_*}/control"; exit 1
 		fi
 		[ -n "$pub" ] || echo "note: $f is not published yet (scripts/publish-updates.ps1)"
+		# opt-in packages are published for apt but not put into the image (nova-c-touch: on-screen keyboard)
+		case "$f" in nova-c-touch_*) continue ;; esac
 		cp "$deb" "$WORK/config/packages.chroot/"
 	done
 

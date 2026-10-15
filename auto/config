@@ -6,7 +6,9 @@ set -e
 if [ "${DEBUG_BOOT:-0}" = 1 ]; then
 	BOOT_EXTRA="console=tty0 console=ttyS0,115200 systemd.journald.forward_to_console=1 systemd.log_level=info"
 else
-	BOOT_EXTRA="quiet splash"
+	# quiet boot: no kernel text between GRUB and the splash (loglevel/cursor), no watchdog timers,
+	# and no "remove the medium" prompt on shutdown
+	BOOT_EXTRA="quiet splash loglevel=3 vt.global_cursor_default=0 nowatchdog noprompt"
 fi
 
 lb config noauto \
@@ -14,6 +16,8 @@ lb config noauto \
 	--architectures amd64 \
 	--archive-areas "main contrib non-free non-free-firmware" \
 	--binary-images iso-hybrid \
+	--chroot-squashfs-compression-type zstd \
+	--chroot-squashfs-compression-level 19 \
 	--bootloaders "grub-efi,syslinux" \
 	--debian-installer none \
 	--apt-recommends false \
@@ -25,5 +29,5 @@ lb config noauto \
 	--iso-application "Nova-C OS" \
 	--iso-publisher "Nova-C OS project; based on Debian" \
 	--iso-volume "NOVA_C_OS" \
-	--bootappend-live "boot=live components hostname=nova-c ${BOOT_EXTRA}" \
+	--bootappend-live "boot=live components nocomponents=tzdata hostname=nova-c ${BOOT_EXTRA}" \
 	"${@}"

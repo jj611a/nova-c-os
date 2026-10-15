@@ -1,5 +1,73 @@
 # Nova-C OS: status and test report
 
+## 0.2.0: lighter, faster to start, nicer to look at
+
+Tested on 15 Oct 2026 in VirtualBox 7.2 (Windows 10 host, Ryzen 5 5500), laptop-style VM: 2 vCPU, 2 GB RAM, 1280x800, no 3D (software
+rendering), UEFI. Everything below was produced by scripts in this repository, run on the ISOs themselves: 0.1.3 (`novac-0.1.3.iso`, 1,751,285,760 bytes)
+against 0.2.0 (`novac.iso`, 1,478,590,464 bytes, sha256 `378eb51e20ef7f080ebbcceef58d6c1dd12321e4615213f0410d3454da5c7794`).
+
+### Results
+
+| Measurement | 0.1.3 | 0.2.0 | How |
+|---|---|---|---|
+| ISO, everyday edition | 1.75 GB | 1.48 GB (-16%) | file size |
+| ISO, Craft edition | 2.26 GB | 2.02 GB (-11%) | file size |
+| Enter in the boot menu to a finished desktop | 41.9 s, 41.9 s | 30.7 s, 32.4 s (Craft: 30.4 s) | `scripts\measure-boot.ps1`, two runs each |
+| Start of userspace to `graphical.target` | 9.7 s | 5.1 s | `systemd-analyze` ([old](screenshots/30-boot-analysis-0.1.3.png), [new](screenshots/31-boot-analysis-0.2.0.png)) |
+| `ldconfig.service` on the critical path | 6.0 s | gone | same |
+| `live-config.service` | 5.9 s | 2.0 s | same |
+| Kernel and initramfs | 5.1 s | 4.1 s | same |
+| Initramfs the boot loader reads | 153 MB | 69 MB | file size in `/live` |
+| Memory in use, idle desktop, one terminal | 1191 MB (762 MB available) | 1167 MB (786 MB available) | `free -m` ([old](screenshots/32-memory-0.1.3.png), [new](screenshots/33-memory-0.2.0.png)) |
+
+`measure-boot.ps1` watches VirtualBox screenshots: it presses Enter one second after the menu shows, and calls the desktop "finished" at the first
+frame after which every frame stays close to the last frame of the run. Both ISOs are measured the same way in the same VM (the firmware starts at
+1280x800 and the virtual SATA controller has 2 ports: VirtualBox's default of 30 made the kernel probe 28 empty links for about 15 s, a test-rig
+artifact that would have hidden most of the differences).
+
+### What changed
+
+| Area | Change |
+|---|---|
+| Boot time | Image stamped so systemd does not re-run `ldconfig`/hwdb at every boot; live locale generated at build time and the time-zone step skipped; zstd squashfs; initramfs without AMD/NVIDIA/Radeon/Xe drivers and firmware (`/usr/share/initramfs-tools/hooks/zz-nova-c-slim`); quiet kernel line (`loglevel=3 nowatchdog`, no shutdown prompt); shorter systemd timeouts; empty-session login (no restore of the previous session's windows) |
+| Idle RAM and processes | The Discover update notifier, accessibility daemon and X11 tray/menu proxies are really off now (they were started by systemd's autostart generator even though their files had been renamed); installer removed from the installed system |
+| Image size | `dpkg` rules skip docs, man pages, stock wallpapers and translations outside 23 languages; on-screen keyboard moved to the opt-in `nova-c-touch` package; legacy server and USB-dongle firmware dropped |
+| Boot menu | 16:9 themed GRUB menu at the firmware's native mode (was a fixed 800x600), Inter typeface, selection pill, boots by itself after 5 s; the installed system gets the same theme, a 3 s timeout and `gfxpayload=keep` |
+| Boot splash | Fade-in, breathing halo, progress bar that glides; redraws a third as often because the old animation cost about 7 s of boot on a software-rendered screen |
+| Desktop look | Inter as the UI font, Fira Code in terminals; three wallpapers with film grain against banding; cyan Papirus folders; Nova-C terminal palette; window shadows and outlines; floating top bar; animations 25% quicker; Firefox without first-run tours, compact, hardware video decoding on |
+
+### Checks
+
+| # | Check | Result | Evidence |
+|---|---|---|---|
+| 1 | Themed boot menu, correct text, Inter font, 5 s auto-boot | PASS | ![](screenshots/01-boot-menu.png) |
+| 2 | Boot splash with halo and progress bar | PASS | ![](screenshots/17-boot-splash.png) |
+| 3 | Boots to the desktop (autologin), floating top bar, dock, wallpaper | PASS | ![](screenshots/02-desktop.png) |
+| 4 | Launcher, Inter UI font, cyan accent | PASS | ![](screenshots/03-launcher-menu.png) |
+| 5 | Terminal palette; fastfetch shows Nova-C OS 0.2.0, Plasma 6.3.6, Wayland, 0 failed units | PASS | ![](screenshots/04-terminal-fastfetch.png) |
+| 6 | Snap tiling, Dolphin with cyan folders | PASS | ![](screenshots/05-tiled-windows.png) |
+| 7 | Alt+Tab, System Settings (animation speed slider is at the new default) | PASS | ![](screenshots/06-alt-tab.png) ![](screenshots/07-system-settings.png) |
+| 8 | Firefox opens straight to a new tab: no welcome tour, compact toolbar | PASS | ![](screenshots/28-firefox-first-run.png) |
+| 9 | Login screen (autologin off) and login with the live password | PASS | ![](screenshots/08-login-screen.png) ![](screenshots/09-after-password-login.png) |
+| 10 | Plasma helpers off: no DiscoverNotifier, kaccess or xembedsniproxy in the process list | PASS | ![](screenshots/33-memory-0.2.0.png) |
+| 11 | Installed-system GRUB menu: `grub-mkconfig` in the image finds the Nova-C theme, loads the fonts, uses a 3 s timeout and the quiet command line | PASS (generated offline in the image, not booted) | |
+| 12 | Upgrade 0.1.3 to 0.2.0 on an installed system: old diversions undone, Discover notifier moved out of the autostart directory, helpers masked, folder icons recoloured, initramfs rebuilt slim, `dpkg --audit` clean | PASS (clean copy of the image, not a VM) | |
+| 13 | Full install with Calamares, then boot of the installed system | **NOT DONE** | see below |
+
+### Limits and open items (please read)
+
+- **No real hardware.** Every number is from the VM. Real laptops have faster storage and GPUs but also firmware time; the *differences* (6 s of `ldconfig`, 85 MB of drivers in the boot files) should carry over, the totals will not.
+- **AMD and NVIDIA graphics** are no longer in the boot files. They load from the system image a moment later (the usual `MODULES=dep` behaviour). The Intel and virtual GPUs of the VM stayed in, so this path was **not exercised**. Please report a black screen or a missing splash on such a laptop.
+- **The Calamares install was not repeated on 0.2.0.** The VirtualBox guests froze intermittently on this host while the installer scanned disks (the same freeze happened with the 0.1.3 ISO, so it is the test rig, not the image). The parts of the installed system that changed were checked in other ways (checks 11 and 12), and `scripts\run-install-test.ps1` is there to repeat the install by hand.
+- **A dark gap of a few seconds** remains between the boot splash and the login splash (the display server starting); it is longer in the VM because of software rendering.
+- The touchscreen on-screen keyboard is now opt-in (`sudo apt install nova-c-touch`): untested on a real convertible such as the Akoya E3216.
+- Languages outside the kept list show English; the list is in `/etc/dpkg/dpkg.cfg.d/90-nova-c-lean`.
+
+---
+
+<details>
+<summary>Original 0.1 test report</summary>
+
 > **Note (0.1.3):** this report covers the first Plasma build (0.1). Since then the installer, automatic updates,
 > Hardware Drivers, boot/login splash and the Craft edition were added and tested in VMs; see the
 > [README](../README.md) and screenshots 10–27. Several "limits" below are now resolved (there is an installer).
@@ -81,3 +149,5 @@ powershell -File scripts\run-ui-tests.ps1                       # repeat this re
 2. Add the Calamares installer so it can be installed, not just run live.
 3. Test the GPU path (`-Accel3d`) and try to trim idle RAM (disable Baloo/Discover notifier, review autostart).
 4. Decide on optional extras. A separate opt-in variant with the Craft app suite is being prepared in another session; it is not part of this ISO.
+
+</details>

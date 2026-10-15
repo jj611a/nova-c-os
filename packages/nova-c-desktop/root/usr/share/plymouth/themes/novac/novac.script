@@ -1,5 +1,6 @@
 # Nova-C OS boot splash (Plymouth script theme).
-# Deep slate background, the Nova-C logo gently pulsing, "Nova-C OS" and a thin cyan progress bar.
+# Deep slate background, the Nova-C logo fading in over a soft cyan halo that breathes, "Nova-C OS", and a thin cyan
+# progress bar that glides toward the real boot progress instead of jumping.
 # Also handles the disk-encryption password prompt and boot messages, so encrypted installs can unlock.
 
 Window.SetBackgroundTopColor(0.016, 0.027, 0.051);      # #04070d
@@ -8,15 +9,21 @@ Window.SetBackgroundBottomColor(0.047, 0.133, 0.200);   # #0c2233
 CX = Window.GetX() + Window.GetWidth() / 2;
 CY = Window.GetY() + Window.GetHeight() / 2;
 
-# ---- logo + name ----
+# ---- halo, logo and name ----
+glow.image = Image("glow.png");
+glow.sprite = Sprite(glow.image);
+glow.sprite.SetOpacity(0);
+
 logo.image = Image("logo.png");
 logo.sprite = Sprite(logo.image);
 logo.sprite.SetPosition(CX - logo.image.GetWidth() / 2, CY - logo.image.GetHeight() / 2 - 50, 10);
-logo.angle = 0;
+logo.sprite.SetOpacity(0);
+glow.sprite.SetPosition(CX - glow.image.GetWidth() / 2, CY - glow.image.GetHeight() / 2 - 50, 5);
 
 title.image = Image.Text("Nova-C OS", 0.624, 0.957, 1.0, 1, "Sans Bold 20");
 title.sprite = Sprite(title.image);
 title.sprite.SetPosition(CX - title.image.GetWidth() / 2, CY + logo.image.GetHeight() / 2 - 20, 10);
+title.sprite.SetOpacity(0);
 
 # ---- progress bar ----
 track.image = Image("bar-track.png");
@@ -24,30 +31,63 @@ track.sprite = Sprite(track.image);
 track.x = CX - track.image.GetWidth() / 2;
 track.y = CY + logo.image.GetHeight() / 2 + 30;
 track.sprite.SetPosition(track.x, track.y, 10);
+track.sprite.SetOpacity(0);
 
 fill.original = Image("bar-fill.png");
 fill.sprite = Sprite();
 fill.sprite.SetPosition(track.x, track.y, 11);
 fill.width = 0;
 
+# target comes from Plymouth; the bar eases toward it a little every step
+state.target = 0;
+state.shown = 0;
+state.tick = 0;
+state.frame = 0;
+state.phase = 0;
+state.status = "normal";
 fun progress_callback(duration, progress) {
-	w = Math.Int(fill.original.GetWidth() * progress);
-	if (w < 1) w = 1;
-	if (w != fill.width) {
-		fill.width = w;
-		fill.sprite.SetImage(fill.original.Scale(w, fill.original.GetHeight()));
-	}
+	state.target = progress;
 }
 Plymouth.SetBootProgressFunction(progress_callback);
 
-# ---- gentle pulse of the logo while booting ----
-status = "normal";
+# ---- animation: fade in, breathe, ease the bar ----
+# Plymouth calls this about 50 times a second. Every redraw costs CPU while the system is still booting (a lot on a
+# slow CPU or a software-rendered screen: measured about 7 s in a VM), so do the work on every third call only
+# (~17 steps a second is plenty for a slow pulse) and stop touching things that no longer change.
 fun refresh_callback() {
-	if (global.status == "normal") {
-		logo.angle += 0.05;
-		logo.sprite.SetOpacity(0.75 + 0.25 * Math.Cos(logo.angle));
+	state.tick += 1;
+	if (state.tick < 3) return;
+	state.tick = 0;
+	state.frame += 1;
+
+	if (state.frame <= 12) {                       # fade in over ~0.7 s
+		a = state.frame / 12;
+		title.sprite.SetOpacity(a);
+		track.sprite.SetOpacity(a);
+		fill.sprite.SetOpacity(a);
+	}
+	a = 1;
+	if (state.frame < 12) a = state.frame / 12;
+
+	if (state.status == "normal") {
+		state.phase += 0.13;
+		breathe = 0.5 + 0.5 * Math.Cos(state.phase);          # 0..1
+		logo.sprite.SetOpacity(a * (0.82 + 0.18 * breathe));
+		glow.sprite.SetOpacity(a * (0.45 + 0.55 * breathe));
 	} else {
-		logo.sprite.SetOpacity(1);
+		logo.sprite.SetOpacity(a);
+		glow.sprite.SetOpacity(a * 0.6);
+	}
+
+	# glide: close a quarter of the remaining distance per step, never go backwards
+	p = state.target;
+	if (p > 1) p = 1;
+	if (p > state.shown) state.shown += (p - state.shown) / 4;
+	w = Math.Int(fill.original.GetWidth() * state.shown);
+	if (w < 2) w = 2;
+	if (w != fill.width) {
+		fill.width = w;
+		fill.sprite.SetImage(fill.original.Scale(w, fill.original.GetHeight()));
 	}
 }
 Plymouth.SetRefreshFunction(refresh_callback);
@@ -65,7 +105,7 @@ fun show_centered(sprite, image, y) {
 }
 
 fun display_password_callback(text, count) {
-	global.status = "password";
+	state.status = "password";
 	if (text == "") text = "Password:";
 	show_centered(prompt.sprite, Image.Text(text, 0.874, 0.933, 0.949, 1, "Sans 12"), track.y + 30);
 	stars = "";
@@ -76,7 +116,7 @@ fun display_password_callback(text, count) {
 Plymouth.SetDisplayPasswordFunction(display_password_callback);
 
 fun display_question_callback(text, entry) {
-	global.status = "question";
+	state.status = "question";
 	show_centered(prompt.sprite, Image.Text(text, 0.874, 0.933, 0.949, 1, "Sans 12"), track.y + 30);
 	if (entry == "") entry = " ";
 	show_centered(bullets.sprite, Image.Text(entry, 0.298, 0.882, 0.941, 1, "Sans 14"), track.y + 60);
@@ -84,7 +124,7 @@ fun display_question_callback(text, entry) {
 Plymouth.SetDisplayQuestionFunction(display_question_callback);
 
 fun display_normal_callback() {
-	global.status = "normal";
+	state.status = "normal";
 	prompt.sprite.SetOpacity(0);
 	bullets.sprite.SetOpacity(0);
 }
@@ -100,6 +140,8 @@ fun message_callback(text) {
 Plymouth.SetMessageFunction(message_callback);
 
 fun quit_callback() {
+	# the bar always ends full
+	fill.sprite.SetImage(fill.original);
 	logo.sprite.SetOpacity(1);
 }
 Plymouth.SetQuitFunction(quit_callback);

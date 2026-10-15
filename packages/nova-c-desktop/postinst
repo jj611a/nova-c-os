@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+if [ "$1" = configure ] || [ "$1" = triggered ]; then
+	# Papirus' folder icons in the accent colour (also after a Papirus update: it is a dpkg trigger)
+	/usr/libexec/nova-c/papirus-cyan || true
+fi
+
 if [ "$1" = configure ]; then
 	# Nova-C colour scheme = Breeze Dark with the logo's cyan as accent and a deep slate base
 	S=/usr/share/color-schemes
@@ -14,18 +19,22 @@ if [ "$1" = configure ]; then
 		    $S/BreezeDark.colors > $S/NovaC.colors
 	fi
 
-	# Nova-C boot splash; rebuild the initramfs so the (possibly updated) theme is used at the next boot
+	# Nova-C boot splash; rebuild the initramfs so the (possibly updated) theme and the slimmed-down driver set
+	# (initramfs-tools/hooks/zz-nova-c-slim) are used at the next boot
 	if command -v plymouth-set-default-theme >/dev/null; then
 		plymouth-set-default-theme novac
 		command -v update-initramfs >/dev/null && update-initramfs -u || true
 	fi
-	# installed systems: boot with "splash" (/etc/default/grub.d/90-nova-c.cfg); the live ISO has its own menu
+	# installed systems: Nova-C boot menu and "splash" (/etc/default/grub.d/90-nova-c.cfg); the live ISO has its own
 	if [ -e /boot/grub/grub.cfg ] && command -v update-grub >/dev/null; then
 		update-grub || true
 	fi
 
 	# KDE's crash-report socket loops in the login screen's system-user session; keep it off
 	systemctl --global mask drkonqi-coredump-launcher.socket >/dev/null 2>&1 || true
+	# Plasma 6 starts these as systemd user services at every login: the accessibility daemon, and the X11 tray and
+	# global-menu proxies (which also bring up Xwayland). Not needed on a default desktop: less to start, less RAM.
+	systemctl --global mask plasma-kaccess.service plasma-xembedsniproxy.service plasma-gmenudbusmenuproxy.service >/dev/null 2>&1 || true
 
 	# sensor quirks (hwdb) and memory sysctls take effect without a reboot where possible
 	command -v systemd-hwdb >/dev/null && systemd-hwdb update || true
