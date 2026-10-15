@@ -117,6 +117,9 @@ libgbm1
 
 # ---- base system ----
 systemd-sysv
+# keeps the clock right (Recommends of systemd, dropped with recommends off): with a wrong clock apt rejects every signature as
+# "not live yet", Debian's included
+systemd-timesyncd
 zstd
 network-manager
 pipewire

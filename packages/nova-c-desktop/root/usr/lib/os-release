@@ -1,7 +1,7 @@
-PRETTY_NAME="Nova-C OS 0.2.1 (based on Debian GNU/Linux 13 trixie)"
+PRETTY_NAME="Nova-C OS 0.2.2 (based on Debian GNU/Linux 13 trixie)"
 NAME="Nova-C OS"
-VERSION_ID="0.2.1"
-VERSION="0.2.1 (trixie base)"
+VERSION_ID="0.2.2"
+VERSION="0.2.2 (trixie base)"
 VERSION_CODENAME=trixie
 ID=nova-c
 ID_LIKE=debian
